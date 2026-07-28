@@ -17,7 +17,7 @@ export async function getStaticPaths() {
 }
 
 const { project, prev, next } = Astro.props;
-const { title, summary, stack, role, url, repo, screenshot, screenshotAlt, order, extraShots } = project.data;
+const { title, summary, stack, role, url, repo, hosting, screenshot, screenshotAlt, order, extraShots } = project.data;
 const total = (await getCollection('projects')).length;
 const num = String(order).padStart(2, '0');
 const { Content } = await render(project);
@@ -61,7 +61,7 @@ const shots = [
         </div>
         <div>
           <div class="mb-1 text-[var(--color-neutral-500)]">Hosting</div>
-          własny VPS
+          {hosting}
         </div>
         <div>
           <div class="mb-1 text-[var(--color-neutral-500)]">Link</div>

@@ -4,6 +4,7 @@ summary: Desktopowa aplikacja do napisów — wyszukuje je w sześciu serwisach,
 stack: [Tauri v2, React, Python]
 role: [autor całości]
 repo: https://github.com/PatrickPinace/SubtitlesDownverter
+hosting: aplikacja desktopowa
 screenshot: subforge
 screenshotAlt: SubForge — formularz i log na żywo
 tile: wide
@@ -19,11 +20,20 @@ i FPS do pliku wideo zajmuje więcej czasu niż samo oglądanie.
 
 ## Rozwiązanie
 
-Aplikacja desktopowa (Tauri v2 + React, rdzeń w Pythonie), która przeszukuje
-sześć źródeł po kolei, sama wykrywa FPS z pliku wideo, koryguje offset
-i sprawdza czytelność napisów (CPS) przed zapisem.
+Aplikacja desktopowa: Tauri v2 + React jako interfejs, Rust jako cienka
+powłoka, cała logika domenowa w Pythonie (FastAPI, ponad 60 tras REST) —
+świadomy podział, żeby UI dało się przebudować bez ruszania rdzenia.
+Przeszukuje sześć serwisów po kolei, z dwoma niezależnymi hashami pliku
+wideo do dopasowania po sekundzie, nie po zgadywaniu tytułu. Wykrywa
+rozjazd FPS między napisami a wideo i sam liczy korektę; jeśli automatyka
+nie trafi, można zaznaczyć dwa punkty w podglądzie, a program rozwiąże
+równanie na przesunięcie i tempo. Serwisy nieodpowiadające (limit,
+blokada) wypadają z kolejki tylko na czas bieżącego przebiegu, bez
+zapisywania tego na stałe. Napisy przed zapisem sprawdzane są pod kątem
+czytelności (znaki na sekundę, jak w Netfliksowym standardzie) i w razie
+potrzeby wydłużane.
 
 ## Efekt
 
-Konwersja i dopasowanie napisów w jednym kliknięciu. Projekt w budowie,
-~95% ukończony.
+Konwersja i dopasowanie napisów w jednym kliknięciu, pokryte 530 testami
+rdzenia w Pythonie. Projekt w budowie, ~95% ukończony.

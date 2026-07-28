@@ -10,6 +10,9 @@ const projects = defineCollection({
     role: z.array(z.string()),
     url: z.string().url().optional(),
     repo: z.string().url().optional(),
+    /** Wyświetlane w karcie "Hosting" na podstronie, np. "własny VPS",
+     *  "GitHub Pages", "aplikacja desktopowa". */
+    hosting: z.string(),
     /** Bazowa nazwa screena bez wariantu, np. "medi3".
      *  Warianty żyją w /screens/{screenshot}-dark.webp i -light.webp. */
     screenshot: z.string(),
