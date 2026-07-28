@@ -14,6 +14,9 @@ const projects = defineCollection({
      *  Warianty żyją w /screens/{screenshot}-dark.webp i -light.webp. */
     screenshot: z.string(),
     screenshotAlt: z.string(),
+    /** Dodatkowe zdjęcia do karuzeli na podstronie, poza dark/light.
+     *  Pełne ścieżki (z /screens/...), pokazywane po obu wariantach. */
+    extraShots: z.array(z.object({ src: z.string(), alt: z.string() })).default([]),
     tile: z.enum(['wide', 'tall', 'normal']),
     featured: z.boolean().default(false),
     inProgress: z.boolean().default(false),

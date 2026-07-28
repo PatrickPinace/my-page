@@ -17,12 +17,12 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 
   <p class="mt-5 max-w-[80ch] text-[13px] text-[var(--color-neutral-500)]">
     Screeny leżą w kadrach o różnych proporcjach, nie w kartach z obwódką.
-    Każdy kadr przechodzi własnym rytmem między wersją ciemną a jasną strony.
+    Każdy kadr przechodzi własnym rytmem (7–9 s) między wersją ciemną a jasną strony.
   </p>
 </div>
 
 <script>
-  // Każdy kadr przełącza się własnym, niezależnym rytmem (2–4 s), żeby
+  // Każdy kadr przełącza się własnym, niezależnym rytmem (7–9 s), żeby
   // siatka nie mrugała zbiorczo. Ruch pauzuje, gdy sekcja jest poza
   // ekranem albo karta jest pod kursorem — wtedy screen ma stać.
   const pairs = Array.from(document.querySelectorAll<HTMLElement>('.shot-pair'));
@@ -30,7 +30,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 
   if (pairs.length && motionOK) {
     const timers = new WeakMap<HTMLElement, number>();
-    const delay = () => 2000 + Math.random() * 2000;
+    const delay = () => 7000 + Math.random() * 2000;
 
     const tick = (el: HTMLElement) => {
       if (!el.dataset.paused) el.classList.toggle('shot-swap');
@@ -51,7 +51,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
           if (e.isIntersecting) {
             if (!timers.has(el)) {
               // losowy odstęp startowy rozjeżdża kafle względem siebie
-              timers.set(el, window.setTimeout(() => tick(el), Math.random() * 2000));
+              timers.set(el, window.setTimeout(() => tick(el), Math.random() * 4000));
             }
           } else {
             stop(el);

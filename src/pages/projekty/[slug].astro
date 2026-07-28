@@ -15,10 +15,17 @@ export async function getStaticPaths() {
 }
 
 const { project, prev, next } = Astro.props;
-const { title, summary, stack, role, url, repo, screenshot, screenshotAlt, order } = project.data;
+const { title, summary, stack, role, url, repo, screenshot, screenshotAlt, order, extraShots } = project.data;
 const total = (await getCollection('projects')).length;
 const num = String(order).padStart(2, '0');
 const { Content } = await render(project);
+
+// Karuzela: wersja ciemna i jasna zawsze, plus ewentualne dodatkowe zdjęcia.
+const shots = [
+  { src: path(`/screens/${screenshot}-dark.webp`), alt: screenshotAlt, variant: 'dark' },
+  { src: path(`/screens/${screenshot}-light.webp`), alt: screenshotAlt, variant: 'light' },
+  ...extraShots.map((s) => ({ src: path(s.src), alt: s.alt, variant: 'extra' })),
+];
 ---
 
 <Base title={`${title} — Michał Minor`} description={summary}>
@@ -53,9 +60,41 @@ const { Content } = await render(project);
         </div>
       </div>
 
-      <div class="shot-pair relative mb-7 aspect-[21/9] overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
-        <img src={path(`/screens/${screenshot}-dark.webp`)} alt={screenshotAlt} class="shot shot-dark h-full w-full object-cover object-top" />
-        <img src={path(`/screens/${screenshot}-light.webp`)} alt="" aria-hidden="true" class="shot shot-light h-full w-full object-cover object-top" />
+      <div class="shot-gallery relative mb-7 overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
+        <div class="shot-frame relative flex min-h-[280px] items-center justify-center">
+          {shots.map((s, i) => (
+            <img
+              src={s.src}
+              alt={s.alt}
+              class:list={['shot', `shot-${s.variant}`, 'max-h-[60vh] max-w-full object-contain', i === 0 && 'is-active']}
+            />
+          ))}
+
+          <!-- Strzałki wycentrowane na wysokości zdjęcia, nie całej galerii —
+               dlatego siedzą w .shot-frame, a nie bezpośrednio w .shot-gallery.
+               Chowają się same, gdy klatka jest tylko jedna (.has-single). -->
+          <button type="button" class="shot-arrow shot-arrow-prev" aria-label="Poprzednie zdjęcie">‹</button>
+          <button type="button" class="shot-arrow shot-arrow-next" aria-label="Następne zdjęcie">›</button>
+        </div>
+
+        <!-- Pasek pod zdjęciem, osobne miejsce na pauzę/kropki — nie nachodzi na kadr. -->
+        <div class="shot-controls">
+          <button type="button" class="shot-play" aria-label="Zatrzymaj automatyczną zmianę zdjęć">
+            <span class="icon-pause">⏸</span>
+            <span class="icon-play">▶</span>
+          </button>
+          <div class="shot-dots" role="tablist" aria-label="Wybór zdjęcia">
+            {shots.map((s, i) => (
+              <button
+                type="button"
+                class:list={['shot-dot', i === 0 && 'is-active']}
+                data-index={i}
+                aria-label={`Zdjęcie ${i + 1} z ${shots.length}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       <div class="prose-case max-w-[58ch] text-[16px] leading-relaxed">
@@ -64,10 +103,10 @@ const { Content } = await render(project);
 
       <div class="mt-8 flex justify-between border-t border-[var(--color-neutral-900)] pt-5 text-sm">
         {prev ? (
-          <a href={path(`/projekty/${prev.id}`)} class="text-[var(--color-neutral-400)] no-underline">← {prev.data.title}</a>
+          <a href={path(`/projekty/${prev.id}`)} class="case-nav-link text-[var(--color-neutral-400)] no-underline">← {prev.data.title}</a>
         ) : <span></span>}
         {next ? (
-          <a href={path(`/projekty/${next.id}`)} class="text-[var(--color-accent-300)] no-underline">{next.data.title} →</a>
+          <a href={path(`/projekty/${next.id}`)} class="case-nav-link text-[var(--color-accent-300)] no-underline">{next.data.title} →</a>
         ) : <span></span>}
       </div>
     </div>
@@ -77,33 +116,99 @@ const { Content } = await render(project);
 </Base>
 
 <script>
-  // Ten sam rytm co na kafelkach siatki — kadr przechodzi między wersją
-  // ciemną a jasną strony, zatrzymując się poza ekranem i pod kursorem.
-  const pair = document.querySelector<HTMLElement>('.shot-pair');
+  // Nawigacja prev/next między projektami to zwykłe przeładowanie strony,
+  // więc przeglądarka domyślnie wraca na górę. Zapisujemy pozycję scrolla
+  // pod kluczem docelowego URL-a tuż przed opuszczeniem strony i odtwarzamy
+  // ją, jeśli wpis czeka — po jednym użyciu wpis kasujemy, żeby zwykłe
+  // wejście na podstronę (np. z kafelka) zawsze startowało od góry.
+  const SCROLL_KEY_PREFIX = 'scrollTo:';
+
+  document.querySelectorAll<HTMLAnchorElement>('.case-nav-link').forEach((link) => {
+    link.addEventListener('click', () => {
+      sessionStorage.setItem(SCROLL_KEY_PREFIX + link.href, String(window.scrollY));
+    });
+  });
+
+  const savedY = sessionStorage.getItem(SCROLL_KEY_PREFIX + location.href);
+  if (savedY !== null) {
+    sessionStorage.removeItem(SCROLL_KEY_PREFIX + location.href);
+    window.scrollTo(0, Number(savedY));
+  }
+</script>
+
+<script>
+  // Karuzela: strzałki + kropki dla nawigacji ręcznej, autoplay w tle
+  // (7–9 s na klatkę) dopóki nikt nie kliknął pauzy ani nie najechał
+  // kursorem. Zatrzymuje się też poza ekranem, żeby nie tykać w tle.
+  const gallery = document.querySelector<HTMLElement>('.shot-gallery');
   const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (pair && motionOK) {
+  if (gallery) {
+    const shots = Array.from(gallery.querySelectorAll<HTMLElement>('.shot'));
+    const dots = Array.from(gallery.querySelectorAll<HTMLButtonElement>('.shot-dot'));
+    const prevBtn = gallery.querySelector<HTMLButtonElement>('.shot-arrow-prev');
+    const nextBtn = gallery.querySelector<HTMLButtonElement>('.shot-arrow-next');
+    const playBtn = gallery.querySelector<HTMLButtonElement>('.shot-play');
+
+    if (shots.length < 2) {
+      gallery.classList.add('has-single');
+    }
+
+    let index = 0;
     let timer = 0;
-    const delay = () => 2000 + Math.random() * 2000;
-    const tick = () => {
-      if (!pair.dataset.paused) pair.classList.toggle('shot-swap');
-      timer = window.setTimeout(tick, delay());
+    let userPaused = false;
+    let inView = true;
+
+    const show = (i: number) => {
+      index = (i + shots.length) % shots.length;
+      shots.forEach((el, n) => el.classList.toggle('is-active', n === index));
+      dots.forEach((el, n) => {
+        el.classList.toggle('is-active', n === index);
+        el.setAttribute('aria-selected', String(n === index));
+      });
     };
+
+    const stop = () => {
+      window.clearTimeout(timer);
+      timer = 0;
+    };
+
+    const schedule = () => {
+      stop();
+      if (!motionOK || userPaused || !inView || shots.length < 2) return;
+      timer = window.setTimeout(() => {
+        show(index + 1);
+        schedule();
+      }, 7000 + Math.random() * 2000);
+    };
+
+    const goTo = (i: number) => {
+      show(i);
+      schedule();
+    };
+
+    prevBtn?.addEventListener('click', () => goTo(index - 1));
+    nextBtn?.addEventListener('click', () => goTo(index + 1));
+    dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
+
+    playBtn?.addEventListener('click', () => {
+      userPaused = !userPaused;
+      gallery.classList.toggle('is-paused', userPaused);
+      schedule();
+    });
+
+    gallery.addEventListener('mouseenter', stop);
+    gallery.addEventListener('mouseleave', schedule);
 
     new IntersectionObserver(
       ([e]) => {
-        if (e.isIntersecting) {
-          if (!timer) timer = window.setTimeout(tick, Math.random() * 2000);
-        } else {
-          window.clearTimeout(timer);
-          timer = 0;
-        }
+        inView = e.isIntersecting;
+        inView ? schedule() : stop();
       },
       { threshold: 0.2 }
-    ).observe(pair);
+    ).observe(gallery);
 
-    pair.addEventListener('mouseenter', () => (pair.dataset.paused = '1'));
-    pair.addEventListener('mouseleave', () => delete pair.dataset.paused);
+    show(0);
   }
 </script>
 

@@ -179,14 +179,18 @@ hr.hr {
    Hairline u dołu pojawia się dopiero po odjechaniu od góry — na samej
    górze strony pasek ma zlewać się z tłem. */
 .site-header {
-  background: rgb(var(--bg-rgb) / 0.72);
+  /* Nieprzezroczystość podniesiona z 0.72 na 0.88 — niżej treść spod paska
+     (np. jasny wariant screena projektu) potrafiła przebić rozmycie na tyle,
+     że tekst nagłówka tracił kontrast. Blur zostaje jako efekt, nie jako
+     jedyna warstwa oddzielająca tekst od tła. */
+  background: rgb(var(--bg-rgb) / 0.88);
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   border-bottom: 1px solid transparent;
   transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 .site-header.is-stuck {
-  background: rgb(var(--bg-rgb) / 0.86);
+  background: rgb(var(--bg-rgb) / 0.96);
   border-bottom-color: var(--color-neutral-800);
 }
 
@@ -203,9 +207,9 @@ html {
   scroll-padding-top: 76px;
 }
 
-/* Screeny w dwóch wariantach: każdy projekt ma zrzut w wersji ciemnej
-   i jasnej. Leżą jeden na drugim i przenikają się — który jest na wierzchu,
-   decyduje skrypt w ProjectsGrid, niezależnie od aktywnego motywu.
+/* Kafelki siatki projektów: dwa warianty (ciemny/jasny) tego samego
+   screena leżą jeden na drugim i przenikają się automatycznie — który jest
+   na wierzchu, decyduje skrypt w ProjectsGrid, niezależnie od motywu.
    Bez JS-a widoczny zostaje wariant ciemny (pierwszy w DOM). */
 .shot {
   position: absolute;
@@ -235,6 +239,114 @@ html {
   }
   .shot-swap .shot-dark {
     opacity: 1;
+  }
+}
+
+/* Karuzela na podstronie projektu: zdjęcia w pełni widoczne (object-contain),
+   więc nie mogą się nakładać przez position:absolute jak na kafelkach —
+   psułoby to wysokość kontenera. Przełącza je display, sterowane klasą
+   .is-active ze skryptu w [slug].astro. */
+.shot-gallery .shot {
+  position: static;
+  display: none;
+}
+.shot-gallery .shot.is-active {
+  display: block;
+}
+
+.shot-arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  height: 36px;
+  width: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--bg-rgb) / 0.15);
+  background: rgb(var(--card-veil) / 0.55);
+  color: var(--color-text);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.shot-arrow:hover {
+  background: rgb(var(--card-veil) / 0.8);
+  border-color: var(--color-accent-700);
+}
+.shot-arrow-prev {
+  left: 14px;
+}
+.shot-arrow-next {
+  right: 14px;
+}
+/* Jedna klatka — nic do przełączania, strzałki i sterowanie znikają. */
+.shot-gallery.has-single .shot-arrow,
+.shot-gallery.has-single .shot-controls {
+  display: none;
+}
+
+/* Pasek kontrolek stoi POD kadrem, w normalnym przepływie — nie na nim,
+   żeby nigdy nie zasłaniać dołu zdjęcia (problem przy panoramicznych
+   screenach, gdzie object-contain wypełniał całą szerokość kadru). */
+.shot-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.shot-play {
+  display: flex;
+  height: 20px;
+  width: 20px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.shot-play .icon-play {
+  display: none;
+}
+.shot-gallery.is-paused .shot-play .icon-pause {
+  display: none;
+}
+.shot-gallery.is-paused .shot-play .icon-play {
+  display: inline;
+}
+
+.shot-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.shot-dot {
+  height: 7px;
+  width: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgb(var(--bg-rgb) / 0.4);
+  cursor: pointer;
+  transition: background-color 0.15s, width 0.15s;
+}
+.shot-dot.is-active {
+  width: 16px;
+  background: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shot-arrow,
+  .shot-dot {
+    transition: none;
   }
 }
 
