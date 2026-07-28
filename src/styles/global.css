@@ -1,0 +1,259 @@
+@import "tailwindcss";
+
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+
+:root {
+  /* Nocturne — motyw domyślny. Kolejny motyw (Ruda) nadpisze --color-accent-*
+     i --color-bg-* przez [data-theme="ruda"] bez zmian w komponentach. */
+  --color-bg: #0e0f17;
+  --color-surface: #1b1d29;
+  --color-surface-2: #0b0c12;
+
+  --color-text: #f2f1f6;
+  --color-neutral-300: #c9c7d6;
+  --color-neutral-400: #a6a3b8;
+  --color-neutral-500: #7d7a8f;
+  --color-neutral-600: #5c596b;
+  --color-neutral-800: #2a2b3a;
+  --color-neutral-900: #1e1f2b;
+
+  --color-accent: #9184d9;
+  --color-accent-200: #cac4ee;
+  --color-accent-300: #a7a1db;
+  --color-accent-400: #968ae0;
+  --color-accent-700: #423a6b;
+
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  /* rgb() akcentu — do tła chipów, gdzie potrzebna przezroczystość */
+  --accent-rgb: 145, 132, 217;
+  /* tło gradientu pod meta-info na karcie projektu */
+  --card-veil: 14, 15, 23;
+  /* kolor tekstu na wypełnieniu akcentem (przycisk główny) */
+  --on-accent: #12111a;
+}
+
+/* Ruda — ciepły grafit + miedź. Nadpisuje wyłącznie tokeny;
+   komponenty nie wiedzą, który motyw jest aktywny. */
+[data-theme="ruda"] {
+  --color-bg: #14120f;
+  --color-surface: #1e1b17;
+  --color-surface-2: #0f0d0b;
+
+  --color-text: #f0ebe4;
+  --color-neutral-300: #c4bdb4;
+  --color-neutral-400: #a8a099;
+  --color-neutral-500: #8d857e;
+  --color-neutral-600: #6b645d;
+  --color-neutral-800: #3a352e;
+  --color-neutral-900: #262219;
+
+  --color-accent: #e08a4b;
+  --color-accent-200: #f3c79e;
+  --color-accent-300: #e9a674;
+  --color-accent-400: #e5975d;
+  --color-accent-700: #6b4426;
+
+  --accent-rgb: 224, 138, 75;
+  --card-veil: 20, 18, 15;
+  --on-accent: #17120d;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+  --color-accent: var(--color-accent);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+a {
+  color: var(--color-accent);
+}
+a:hover {
+  color: var(--color-accent-300);
+}
+
+hr.hr {
+  border: none;
+  border-top: 1px solid var(--color-neutral-800);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--on-accent);
+}
+.btn-primary:hover {
+  background: var(--color-accent-300);
+  color: var(--on-accent);
+}
+.btn-secondary {
+  border: 1px solid var(--color-neutral-800);
+  color: var(--color-text);
+}
+.btn-secondary:hover {
+  border-color: var(--color-accent-700);
+  color: var(--color-accent-200);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+.tag-outline {
+  border: 1px solid var(--color-neutral-800);
+  color: var(--color-neutral-400);
+}
+.tag-accent {
+  border: 1px solid var(--color-accent-700);
+  color: var(--color-accent-200);
+  background: rgb(var(--accent-rgb) / 0.1);
+}
+.tag-neutral {
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-300);
+}
+
+.group:hover .card-tags .tag-outline {
+  border-color: var(--color-accent-700);
+  color: var(--color-accent-200);
+  background: rgb(var(--accent-rgb) / 0.1);
+}
+
+/* Screeny w dwóch wariantach: każdy projekt ma zrzut w wersji ciemnej
+   i jasnej. Pokazujemy ten, który pasuje do aktywnego motywu — przełącza
+   się razem z nim, bez JS-a po stronie karty. */
+.shot-light {
+  display: none;
+}
+[data-theme="ruda"] .shot-dark {
+  display: none;
+}
+[data-theme="ruda"] .shot-light {
+  display: block;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--color-neutral-800);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-neutral-400);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.theme-toggle:hover {
+  border-color: var(--color-accent-700);
+  color: var(--color-accent-200);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.theme-toggle .swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+/* Etykieta zapowiada motyw, na który przełączy kliknięcie. */
+.theme-toggle .label-to-ruda {
+  display: inline;
+}
+.theme-toggle .label-to-nocturne {
+  display: none;
+}
+[data-theme="ruda"] .theme-toggle .label-to-ruda {
+  display: none;
+}
+[data-theme="ruda"] .theme-toggle .label-to-nocturne {
+  display: inline;
+}
+
+@keyframes nx-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+@keyframes nx-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="px-6 pb-16 md:px-14 md:pb-18">
+  <div class="mb-7 flex items-baseline justify-between">
+    <h2 id="projekty" class="text-[28px] md:text-[40px]">Projekty</h2>
+    <span class="hidden text-[13px] text-[var(--color-neutral-500)] md:inline">sześć rzeczy, które postawiłem i utrzymuję</span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-7 md:grid-cols-6 md:gap-6">
+    {projects.map((project, i) => <ProjectCard project={project} index={i} />)}
+  </div>
+
+  <p class="mt-5 max-w-[80ch] text-[13px] text-[var(--color-neutral-500)]">
+    Screeny leżą w kadrach o różnych proporcjach, nie w kartach z obwódką —
+    SubForge jest jedynym ciemnym kadrem i przez to sam się wyróżnia.
+  </p>
+</div>

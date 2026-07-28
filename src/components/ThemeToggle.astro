@@ -1,0 +1,27 @@
+---
+/** Przełącznik Nocturne ↔ Ruda. Stan trzymany na <html data-theme>,
+ *  zapisywany w localStorage. Skrypt ustawiający motyw przed pierwszym
+ *  malowaniem jest w Base.astro — tu tylko obsługa kliknięcia. */
+---
+
+<button type="button" class="theme-toggle" id="theme-toggle" aria-label="Zmień motyw kolorystyczny">
+  <span class="swatch" aria-hidden="true"></span>
+  <span class="label-to-ruda">ruda</span>
+  <span class="label-to-nocturne">nocturne</span>
+</button>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  btn?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'ruda' ? 'nocturne' : 'ruda';
+    document.documentElement.dataset.theme = next;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', next === 'ruda' ? '#14120f' : '#0e0f17');
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* tryb prywatny — motyw zadziała, po prostu się nie zapamięta */
+    }
+  });
+</script>

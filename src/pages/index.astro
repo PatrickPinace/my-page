@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import ProjectsGrid from '../components/ProjectsGrid.astro';
+import About from '../components/About.astro';
+import Stack from '../components/Stack.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base
+  title="Michał Minor — full-stack developer"
+  description="Buduję rzeczy, które działają — od backendu po deploy. Django, Astro, React, Linux."
+>
+  <div class="mx-auto max-w-[1120px]">
+    <Header />
+    <Hero />
+    <ProjectsGrid />
+    <About />
+    <Stack />
+    <Contact />
+    <Footer />
+  </div>
+</Base>

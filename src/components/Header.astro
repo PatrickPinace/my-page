@@ -1,0 +1,17 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<div class="flex items-center justify-between gap-4 px-6 py-5 text-sm md:px-14">
+  <a href="/" class="whitespace-nowrap font-medium text-[var(--color-text)] no-underline transition-colors hover:text-[var(--color-accent-300)]">
+    Michał Minor
+  </a>
+  <nav class="flex items-center gap-4 text-[var(--color-neutral-400)] md:gap-6">
+    <!-- na wąskich ekranach zostaje sam Kontakt i przełącznik —
+         Projekty i O mnie są i tak tuż pod nagłówkiem -->
+    <a href="/#projekty" class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">Projekty</a>
+    <a href="/#o-mnie" class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">O mnie</a>
+    <a href="mailto:minor.michal1@gmail.com" class="no-underline text-[var(--color-accent-300)]">Kontakt</a>
+    <ThemeToggle />
+  </nav>
+</div>

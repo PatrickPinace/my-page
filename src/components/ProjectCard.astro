@@ -1,0 +1,68 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const { title, summary, stack, role, screenshot, screenshotAlt, tile, inProgress } = project.data;
+
+const colSpan = tile === 'wide' ? 'md:col-span-4' : tile === 'tall' ? 'md:col-span-2' : 'md:col-span-3';
+const aspect = tile === 'wide' ? 'aspect-[2/1]' : tile === 'tall' ? 'aspect-[3/4]' : 'aspect-video';
+const num = String(index + 1).padStart(2, '0');
+---
+
+<a
+  href={`/projekty/${project.id}`}
+  class:list={['group reveal flex cursor-pointer flex-col gap-3.5 no-underline', colSpan]}
+>
+  <div class:list={['relative overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] transition-shadow duration-200 group-hover:shadow-[var(--shadow-md)]', aspect]} style="background: var(--color-surface)">
+    <img
+      src={`/screens/${screenshot}-dark.webp`}
+      alt={screenshotAlt}
+      loading="lazy"
+      class="shot-dark h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
+    />
+    <img
+      src={`/screens/${screenshot}-light.webp`}
+      alt={screenshotAlt}
+      loading="lazy"
+      class="shot-light h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
+    />
+
+    {inProgress && (
+      <div class="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px]" style="background: rgb(var(--card-veil) / .85); border-color: var(--color-accent-700); color: var(--color-accent-300)">
+        <span class="h-1.5 w-1.5 rounded-full" style="background: var(--color-accent-400); animation: nx-pulse 1.8s ease-in-out infinite"></span>
+        w budowie · ~95%
+      </div>
+    )}
+
+    <div
+      class="absolute bottom-0 left-0 h-0.5 w-0 bg-[var(--color-accent)] transition-[width] duration-200 group-hover:w-full"
+    ></div>
+
+    <div class="pointer-events-none absolute inset-x-0 bottom-0.5 flex translate-y-2 items-end justify-between px-3.5 pb-2.5 pt-6 font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100" style="background: linear-gradient(0deg, rgb(var(--card-veil) / .92), transparent)">
+      <span class="text-[var(--color-neutral-300)]">rola: {role.join(', ')}</span>
+      <span class="text-[var(--color-accent-300)]">case study →</span>
+    </div>
+  </div>
+
+  <div class="flex gap-3.5">
+    <span class="pt-1 font-mono text-xs text-[var(--color-neutral-600)] transition-colors group-hover:text-[var(--color-accent-400)]">{num}</span>
+    <div class="flex flex-col gap-1.5">
+      <h3 class:list={['transition-colors group-hover:text-[var(--color-accent-200)]', tile === 'wide' ? 'text-xl' : 'text-base']}>{title}</h3>
+      <p class:list={['max-w-[46ch] text-[var(--color-neutral-400)] transition-colors group-hover:text-[var(--color-neutral-300)]', tile === 'wide' ? 'text-[15px]' : 'text-sm']}>
+        {summary}
+      </p>
+      {tile === 'wide' && (
+        <div class="mt-1 flex flex-wrap gap-1.5 card-tags">
+          {stack.map((s) => (
+            <span class="tag tag-outline">{s}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</a>

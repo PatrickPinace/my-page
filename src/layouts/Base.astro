@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0e0f17" />
+    <script is:inline>
+      // Musi wykonać się przed pierwszym malowaniem, inaczej strona mignie
+      // domyślnym motywem, zanim wczyta się zapisany wybór.
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'ruda') {
+          document.documentElement.dataset.theme = 'ruda';
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute('content', '#14120f');
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <slot />
+    <script>
+      const els = document.querySelectorAll<HTMLElement>('.reveal');
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              io.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.15 }
+      );
+      els.forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>

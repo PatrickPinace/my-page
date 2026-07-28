@@ -1,0 +1,89 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, prev: projects[i - 1], next: projects[i + 1] },
+  }));
+}
+
+const { project, prev, next } = Astro.props;
+const { title, summary, stack, role, url, repo, screenshot, screenshotAlt, order } = project.data;
+const total = (await getCollection('projects')).length;
+const num = String(order).padStart(2, '0');
+const { Content } = await render(project);
+---
+
+<Base title={`${title} — Michał Minor`} description={summary}>
+  <div class="mx-auto max-w-[1120px]">
+    <Header />
+
+    <div class="px-6 pb-16 md:px-14">
+      <div class="mb-3 font-mono text-xs text-[var(--color-neutral-600)]">
+        <a href="/#projekty" class="text-[var(--color-neutral-600)] no-underline hover:text-[var(--color-accent-300)]">← projekty</a>
+        · {num} / {String(total).padStart(2, '0')}
+      </div>
+
+      <h1 class="mb-3 text-[32px] tracking-[-0.02em] md:text-[44px]">{title}</h1>
+      <p class="mb-6 max-w-[54ch] text-lg text-[var(--color-neutral-400)] md:text-[19px]">{summary}</p>
+
+      <div class="mb-7 grid grid-cols-2 gap-5 border-y border-[var(--color-neutral-800)] py-4 text-[13px] md:grid-cols-4">
+        <div>
+          <div class="mb-1 text-[var(--color-neutral-500)]">Rola</div>
+          {role.join(', ')}
+        </div>
+        <div>
+          <div class="mb-1 text-[var(--color-neutral-500)]">Stack</div>
+          {stack.join(' · ')}
+        </div>
+        <div>
+          <div class="mb-1 text-[var(--color-neutral-500)]">Hosting</div>
+          własny VPS
+        </div>
+        <div>
+          <div class="mb-1 text-[var(--color-neutral-500)]">Link</div>
+          {url && <a href={url} class="text-[var(--color-accent-300)] no-underline">na żywo →</a>}
+          {repo && !url && <a href={repo} class="text-[var(--color-accent-300)] no-underline">repo →</a>}
+        </div>
+      </div>
+
+      <div class="mb-7 aspect-[21/9] overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
+        <img src={`/screens/${screenshot}-dark.webp`} alt={screenshotAlt} class="shot-dark h-full w-full object-cover object-top" />
+        <img src={`/screens/${screenshot}-light.webp`} alt={screenshotAlt} class="shot-light h-full w-full object-cover object-top" />
+      </div>
+
+      <div class="prose-case max-w-[58ch] text-[16px] leading-relaxed">
+        <Content />
+      </div>
+
+      <div class="mt-8 flex justify-between border-t border-[var(--color-neutral-900)] pt-5 text-sm">
+        {prev ? (
+          <a href={`/projekty/${prev.id}`} class="text-[var(--color-neutral-400)] no-underline">← {prev.data.title}</a>
+        ) : <span></span>}
+        {next ? (
+          <a href={`/projekty/${next.id}`} class="text-[var(--color-accent-300)] no-underline">{next.data.title} →</a>
+        ) : <span></span>}
+      </div>
+    </div>
+
+    <Footer />
+  </div>
+</Base>
+
+<style>
+  .prose-case :global(h2) {
+    margin: 28px 0 8px;
+    font-size: 14px;
+    color: var(--color-neutral-500);
+    font-weight: 500;
+  }
+  .prose-case :global(p) {
+    margin: 0 0 4px;
+    color: var(--color-neutral-300);
+  }
+</style>

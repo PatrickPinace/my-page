@@ -1,0 +1,22 @@
+---
+const groups = [
+  { label: 'Backend', items: ['Django', 'Python', 'PostgreSQL'] },
+  { label: 'Frontend', items: ['Astro', 'React', 'Tailwind 4'] },
+  { label: 'Infra', items: ['Linux', 'Docker', 'VPS', 'GitHub Actions'] },
+  { label: 'AI', items: ['lokalne modele', 'Ollama'] },
+];
+---
+
+<div class="reveal px-6 pb-16 md:px-14 md:pb-18">
+  <h2 class="mb-7 text-[28px] md:text-[40px]">Stack</h2>
+  <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+    {groups.map((g) => (
+      <div class="flex flex-col gap-3 border-t border-[var(--color-neutral-800)] pt-3.5">
+        <div class="text-[13px] text-[var(--color-neutral-500)]">{g.label}</div>
+        <div class="flex flex-wrap gap-1.5">
+          {g.items.map((item) => <span class="tag tag-neutral">{item}</span>)}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
