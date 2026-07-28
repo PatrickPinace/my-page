@@ -179,19 +179,25 @@ hr.hr {
    Hairline u dołu pojawia się dopiero po odjechaniu od góry — na samej
    górze strony pasek ma zlewać się z tłem. */
 .site-header {
-  /* Nieprzezroczystość podniesiona z 0.72 na 0.88 — niżej treść spod paska
-     (np. jasny wariant screena projektu) potrafiła przebić rozmycie na tyle,
-     że tekst nagłówka tracił kontrast. Blur zostaje jako efekt, nie jako
-     jedyna warstwa oddzielająca tekst od tła. */
-  background: rgb(var(--bg-rgb) / 0.88);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  /* Sama przezroczystość + blur nie wystarczały: bardzo jasne tło pod
+     paskiem (np. kremowy screen medykalni) wciąż przebijało na tyle,
+     że tekst tracił kontrast — nawet przy wysokim kryciu. Krycie 0.9
+     na samej górze strony (gdzie jeszcze nie ma .is-stuck) plus
+     text-shadow na linkach (patrz niżej) jako druga, niezależna od tła
+     warstwa zabezpieczenia czytelności. */
+  background: rgb(var(--bg-rgb) / 0.9);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid transparent;
   transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 .site-header.is-stuck {
-  background: rgb(var(--bg-rgb) / 0.96);
+  background: rgb(var(--bg-rgb) / 0.97);
   border-bottom-color: var(--color-neutral-800);
+}
+.site-header a,
+.site-header .theme-toggle {
+  text-shadow: 0 1px 3px rgb(var(--bg-rgb) / 0.9);
 }
 
 /* Przeglądarki bez backdrop-filter dostają pełne tło zamiast prześwitu. */

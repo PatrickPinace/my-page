@@ -47,7 +47,10 @@ const num = String(index + 1).padStart(2, '0');
       class="absolute bottom-0 left-0 h-0.5 w-0 bg-[var(--color-accent)] transition-[width] duration-200 group-hover:w-full"
     ></div>
 
-    <div class="pointer-events-none absolute inset-x-0 bottom-0.5 flex translate-y-2 items-end justify-between px-3.5 pb-2.5 pt-6 font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100" style="background: linear-gradient(0deg, rgb(var(--card-veil) / .92), transparent)">
+    <div
+      class="pointer-events-none absolute inset-x-0 bottom-0.5 flex translate-y-2 items-end justify-between px-3.5 pb-3 pt-7 font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100"
+      style={`background: linear-gradient(0deg, rgb(var(--card-veil) / .95) 0%, rgb(var(--card-veil) / .95) 45%, transparent 100%); text-shadow: 0 1px 3px rgb(var(--card-veil) / .9)`}
+    >
       <span class="text-[var(--color-neutral-300)]">rola: {role.join(', ')}</span>
       <span class="text-[var(--color-accent-300)]">case study →</span>
     </div>
