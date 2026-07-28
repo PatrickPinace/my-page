@@ -20,9 +20,8 @@ const { Content } = await render(project);
 ---
 
 <Base title={`${title} — Michał Minor`} description={summary}>
+  <Header />
   <div class="mx-auto max-w-[1120px]">
-    <Header />
-
     <div class="px-6 pb-16 md:px-14">
       <div class="mb-3 font-mono text-xs text-[var(--color-neutral-600)]">
         <a href="/#projekty" class="text-[var(--color-neutral-600)] no-underline hover:text-[var(--color-accent-300)]">← projekty</a>
@@ -52,9 +51,9 @@ const { Content } = await render(project);
         </div>
       </div>
 
-      <div class="mb-7 aspect-[21/9] overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
-        <img src={`/screens/${screenshot}-dark.webp`} alt={screenshotAlt} class="shot-dark h-full w-full object-cover object-top" />
-        <img src={`/screens/${screenshot}-light.webp`} alt={screenshotAlt} class="shot-light h-full w-full object-cover object-top" />
+      <div class="shot-pair relative mb-7 aspect-[21/9] overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
+        <img src={`/screens/${screenshot}-dark.webp`} alt={screenshotAlt} class="shot shot-dark h-full w-full object-cover object-top" />
+        <img src={`/screens/${screenshot}-light.webp`} alt="" aria-hidden="true" class="shot shot-light h-full w-full object-cover object-top" />
       </div>
 
       <div class="prose-case max-w-[58ch] text-[16px] leading-relaxed">
@@ -74,6 +73,37 @@ const { Content } = await render(project);
     <Footer />
   </div>
 </Base>
+
+<script>
+  // Ten sam rytm co na kafelkach siatki — kadr przechodzi między wersją
+  // ciemną a jasną strony, zatrzymując się poza ekranem i pod kursorem.
+  const pair = document.querySelector<HTMLElement>('.shot-pair');
+  const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (pair && motionOK) {
+    let timer = 0;
+    const delay = () => 2000 + Math.random() * 2000;
+    const tick = () => {
+      if (!pair.dataset.paused) pair.classList.toggle('shot-swap');
+      timer = window.setTimeout(tick, delay());
+    };
+
+    new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          if (!timer) timer = window.setTimeout(tick, Math.random() * 2000);
+        } else {
+          window.clearTimeout(timer);
+          timer = 0;
+        }
+      },
+      { threshold: 0.2 }
+    ).observe(pair);
+
+    pair.addEventListener('mouseenter', () => (pair.dataset.paused = '1'));
+    pair.addEventListener('mouseleave', () => delete pair.dataset.paused);
+  }
+</script>
 
 <style>
   .prose-case :global(h2) {

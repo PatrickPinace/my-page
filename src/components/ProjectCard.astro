@@ -19,18 +19,21 @@ const num = String(index + 1).padStart(2, '0');
   class:list={['group reveal flex cursor-pointer flex-col gap-3.5 no-underline', colSpan]}
 >
   <div class:list={['relative overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] transition-shadow duration-200 group-hover:shadow-[var(--shadow-md)]', aspect]} style="background: var(--color-surface)">
-    <img
-      src={`/screens/${screenshot}-dark.webp`}
-      alt={screenshotAlt}
-      loading="lazy"
-      class="shot-dark h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
-    />
-    <img
-      src={`/screens/${screenshot}-light.webp`}
-      alt={screenshotAlt}
-      loading="lazy"
-      class="shot-light h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
-    />
+    <div class="shot-pair absolute inset-0 transition-transform duration-300 group-hover:scale-[1.03]">
+      <img
+        src={`/screens/${screenshot}-dark.webp`}
+        alt={screenshotAlt}
+        loading="lazy"
+        class="shot shot-dark h-full w-full object-cover object-top"
+      />
+      <img
+        src={`/screens/${screenshot}-light.webp`}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        class="shot shot-light h-full w-full object-cover object-top"
+      />
+    </div>
 
     {inProgress && (
       <div class="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px]" style="background: rgb(var(--card-veil) / .85); border-color: var(--color-accent-700); color: var(--color-accent-300)">

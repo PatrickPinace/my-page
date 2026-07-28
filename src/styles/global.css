@@ -41,6 +41,8 @@
 
   /* rgb() akcentu — do tła chipów, gdzie potrzebna przezroczystość */
   --accent-rgb: 145, 132, 217;
+  /* rgb() tła — do półprzezroczystego paska nawigacji */
+  --bg-rgb: 14, 15, 23;
   /* tło gradientu pod meta-info na karcie projektu */
   --card-veil: 14, 15, 23;
   /* kolor tekstu na wypełnieniu akcentem (przycisk główny) */
@@ -69,6 +71,7 @@
   --color-accent-700: #6b4426;
 
   --accent-rgb: 224, 138, 75;
+  --bg-rgb: 20, 18, 15;
   --card-veil: 20, 18, 15;
   --on-accent: #17120d;
 
@@ -171,17 +174,68 @@ hr.hr {
   background: rgb(var(--accent-rgb) / 0.1);
 }
 
+/* Pasek nawigacji przyklejony do góry. Tło półprzezroczyste z rozmyciem,
+   żeby treść przewijająca się pod spodem nie prześwitywała ostro.
+   Hairline u dołu pojawia się dopiero po odjechaniu od góry — na samej
+   górze strony pasek ma zlewać się z tłem. */
+.site-header {
+  background: rgb(var(--bg-rgb) / 0.72);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+.site-header.is-stuck {
+  background: rgb(var(--bg-rgb) / 0.86);
+  border-bottom-color: var(--color-neutral-800);
+}
+
+/* Przeglądarki bez backdrop-filter dostają pełne tło zamiast prześwitu. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--color-bg);
+  }
+}
+
+/* Kotwice muszą uwzględnić wysokość przyklejonego paska, inaczej nagłówek
+   sekcji chowa się pod nim po kliknięciu w link nawigacji. */
+html {
+  scroll-padding-top: 76px;
+}
+
 /* Screeny w dwóch wariantach: każdy projekt ma zrzut w wersji ciemnej
-   i jasnej. Pokazujemy ten, który pasuje do aktywnego motywu — przełącza
-   się razem z nim, bez JS-a po stronie karty. */
+   i jasnej. Leżą jeden na drugim i przenikają się — który jest na wierzchu,
+   decyduje skrypt w ProjectsGrid, niezależnie od aktywnego motywu.
+   Bez JS-a widoczny zostaje wariant ciemny (pierwszy w DOM). */
+.shot {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.9s ease;
+}
 .shot-light {
-  display: none;
+  opacity: 0;
 }
-[data-theme="ruda"] .shot-dark {
-  display: none;
+.shot-dark {
+  opacity: 1;
 }
-[data-theme="ruda"] .shot-light {
-  display: block;
+.shot-swap .shot-light {
+  opacity: 1;
+}
+.shot-swap .shot-dark {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Bez animowanego przełączania — zostaje sam wariant ciemny. */
+  .shot {
+    transition: none;
+  }
+  .shot-swap .shot-light {
+    opacity: 0;
+  }
+  .shot-swap .shot-dark {
+    opacity: 1;
+  }
 }
 
 .theme-toggle {

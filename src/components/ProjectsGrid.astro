@@ -16,7 +16,56 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   </div>
 
   <p class="mt-5 max-w-[80ch] text-[13px] text-[var(--color-neutral-500)]">
-    Screeny leżą w kadrach o różnych proporcjach, nie w kartach z obwódką —
-    SubForge jest jedynym ciemnym kadrem i przez to sam się wyróżnia.
+    Screeny leżą w kadrach o różnych proporcjach, nie w kartach z obwódką.
+    Każdy kadr przechodzi własnym rytmem między wersją ciemną a jasną strony.
   </p>
 </div>
+
+<script>
+  // Każdy kadr przełącza się własnym, niezależnym rytmem (2–4 s), żeby
+  // siatka nie mrugała zbiorczo. Ruch pauzuje, gdy sekcja jest poza
+  // ekranem albo karta jest pod kursorem — wtedy screen ma stać.
+  const pairs = Array.from(document.querySelectorAll<HTMLElement>('.shot-pair'));
+  const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (pairs.length && motionOK) {
+    const timers = new WeakMap<HTMLElement, number>();
+    const delay = () => 2000 + Math.random() * 2000;
+
+    const tick = (el: HTMLElement) => {
+      if (!el.dataset.paused) el.classList.toggle('shot-swap');
+      timers.set(el, window.setTimeout(() => tick(el), delay()));
+    };
+
+    const stop = (el: HTMLElement) => {
+      const id = timers.get(el);
+      if (id) window.clearTimeout(id);
+      timers.delete(el);
+    };
+
+    // Rusza dopiero, gdy kadr wjedzie w widok — i zatrzymuje się po wyjeździe.
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const el = e.target as HTMLElement;
+          if (e.isIntersecting) {
+            if (!timers.has(el)) {
+              // losowy odstęp startowy rozjeżdża kafle względem siebie
+              timers.set(el, window.setTimeout(() => tick(el), Math.random() * 2000));
+            }
+          } else {
+            stop(el);
+          }
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    for (const el of pairs) {
+      io.observe(el);
+      const card = el.closest('a') ?? el;
+      card.addEventListener('mouseenter', () => (el.dataset.paused = '1'));
+      card.addEventListener('mouseleave', () => delete el.dataset.paused);
+    }
+  }
+</script>

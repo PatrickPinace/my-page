@@ -2,16 +2,34 @@
 import ThemeToggle from './ThemeToggle.astro';
 ---
 
-<div class="flex items-center justify-between gap-4 px-6 py-5 text-sm md:px-14">
-  <a href="/" class="whitespace-nowrap font-medium text-[var(--color-text)] no-underline transition-colors hover:text-[var(--color-accent-300)]">
-    Michał Minor
-  </a>
-  <nav class="flex items-center gap-4 text-[var(--color-neutral-400)] md:gap-6">
-    <!-- na wąskich ekranach zostaje sam Kontakt i przełącznik —
-         Projekty i O mnie są i tak tuż pod nagłówkiem -->
-    <a href="/#projekty" class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">Projekty</a>
-    <a href="/#o-mnie" class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">O mnie</a>
-    <a href="mailto:minor.michal1@gmail.com" class="no-underline text-[var(--color-accent-300)]">Kontakt</a>
-    <ThemeToggle />
-  </nav>
-</div>
+<!-- Sentinel: dopóki jest widoczny, pasek stoi na samej górze strony.
+     Tańsze niż nasłuchiwanie scrolla — obserwator odpala się tylko na
+     przecięciu, nie przy każdym pikselu przewinięcia. -->
+<div id="header-sentinel" aria-hidden="true"></div>
+
+<header class="site-header sticky top-0 z-50">
+  <div class="mx-auto flex max-w-[1120px] items-center justify-between gap-4 px-6 py-5 text-sm md:px-14">
+    <a href="/" class="whitespace-nowrap font-medium text-[var(--color-text)] no-underline transition-colors hover:text-[var(--color-accent-300)]">
+      Michał Minor
+    </a>
+    <nav class="flex items-center gap-4 text-[var(--color-neutral-400)] md:gap-6">
+      <!-- na wąskich ekranach zostaje sam Kontakt i przełącznik —
+           Projekty i O mnie są i tak tuż pod nagłówkiem -->
+      <a href="/#projekty" class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">Projekty</a>
+      <a href="/#o-mnie" class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">O mnie</a>
+      <a href="mailto:minor.michal1@gmail.com" class="no-underline text-[var(--color-accent-300)]">Kontakt</a>
+      <ThemeToggle />
+    </nav>
+  </div>
+</header>
+
+<script>
+  const sentinel = document.getElementById('header-sentinel');
+  const header = document.querySelector('.site-header');
+  if (sentinel && header) {
+    new IntersectionObserver(
+      ([entry]) => header.classList.toggle('is-stuck', !entry.isIntersecting),
+      { threshold: 0 }
+    ).observe(sentinel);
+  }
+</script>
