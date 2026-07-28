@@ -34,8 +34,28 @@ ekranem, pod kursorem i przy `prefers-reduced-motion`.
 
 ## Deploy
 
-`.github/workflows/deploy.yml` — push na `main` buduje stronę w CI
-i wysyła `dist/` na VPS przez rsync.
+Dwa workflowy, niezależne od siebie:
+
+| Plik | Kiedy | Dokąd |
+|---|---|---|
+| `pages.yml` | automatycznie, przy pushu na `main` | GitHub Pages — adres podglądowy |
+| `deploy.yml` | tylko ręcznie (Actions → Run workflow) | VPS przez rsync |
+
+### Podgląd na GitHub Pages
+
+Działa od razu, bez żadnych sekretów. Raz trzeba włączyć w repo:
+**Settings → Pages → Source: GitHub Actions**. Potem każdy push na `main`
+publikuje stronę pod `https://patrickpinace.github.io/my-page`.
+
+Ścieżki wewnętrzne przechodzą przez `src/lib/paths.ts`, więc strona działa
+zarówno w podkatalogu (Pages), jak i w korzeniu domeny (VPS) — `BASE_PATH`
+wylicza się automatycznie.
+
+### Docelowy VPS
+
+`deploy.yml` buduje stronę w CI i wysyła `dist/` na serwer przez rsync.
+Uruchamiany na razie **wyłącznie ręcznie** — żeby włączyć automat przy
+każdym pushu, odkomentuj `push:` na górze pliku.
 
 Do ustawienia w **Settings → Secrets and variables → Actions**:
 

@@ -1,8 +1,11 @@
 name: Deploy na VPS
 
+# Uruchamiany wyłącznie ręcznie (Actions → Deploy na VPS → Run workflow),
+# dopóki VPS nie jest gotowy i sekrety nie są ustawione. Żeby wrócić do
+# automatu przy każdym pushu, odkomentuj poniższe `push:`.
 on:
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
   workflow_dispatch:
 
 concurrency:

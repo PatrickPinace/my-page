@@ -1,0 +1,68 @@
+name: Podgląd na GitHub Pages
+
+# Tymczasowy adres do oglądania strony, zanim ruszy docelowy VPS.
+# Deploy na VPS siedzi osobno w deploy.yml i nie koliduje z tym workflow.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Skonfiguruj Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Zainstaluj pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+          run_install: false
+
+      - name: Zainstaluj Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Zainstaluj zależności
+        run: pnpm install --frozen-lockfile
+
+      - name: Zbuduj stronę
+        run: pnpm build
+        env:
+          # configure-pages wylicza oba adresy z ustawień repo — dzięki temu
+          # działa zarówno pod /my-page/, jak i na własnej domenie w korzeniu
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - name: Wyślij artefakt
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Opublikuj na Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/paths';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -15,19 +16,19 @@ const num = String(index + 1).padStart(2, '0');
 ---
 
 <a
-  href={`/projekty/${project.id}`}
+  href={url(`/projekty/${project.id}`)}
   class:list={['group reveal flex cursor-pointer flex-col gap-3.5 no-underline', colSpan]}
 >
   <div class:list={['relative overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] transition-shadow duration-200 group-hover:shadow-[var(--shadow-md)]', aspect]} style="background: var(--color-surface)">
     <div class="shot-pair absolute inset-0 transition-transform duration-300 group-hover:scale-[1.03]">
       <img
-        src={`/screens/${screenshot}-dark.webp`}
+        src={url(`/screens/${screenshot}-dark.webp`)}
         alt={screenshotAlt}
         loading="lazy"
         class="shot shot-dark h-full w-full object-cover object-top"
       />
       <img
-        src={`/screens/${screenshot}-light.webp`}
+        src={url(`/screens/${screenshot}-light.webp`)}
         alt=""
         aria-hidden="true"
         loading="lazy"

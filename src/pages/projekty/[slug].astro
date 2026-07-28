@@ -3,6 +3,8 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+// pod inną nazwą — `url` jest tu zajęte przez pole z frontmattera projektu
+import { url as path } from '../../lib/paths';
 
 export async function getStaticPaths() {
   const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -24,7 +26,7 @@ const { Content } = await render(project);
   <div class="mx-auto max-w-[1120px]">
     <div class="px-6 pb-16 md:px-14">
       <div class="mb-3 font-mono text-xs text-[var(--color-neutral-600)]">
-        <a href="/#projekty" class="text-[var(--color-neutral-600)] no-underline hover:text-[var(--color-accent-300)]">← projekty</a>
+        <a href={path("/#projekty")} class="text-[var(--color-neutral-600)] no-underline hover:text-[var(--color-accent-300)]">← projekty</a>
         · {num} / {String(total).padStart(2, '0')}
       </div>
 
@@ -52,8 +54,8 @@ const { Content } = await render(project);
       </div>
 
       <div class="shot-pair relative mb-7 aspect-[21/9] overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
-        <img src={`/screens/${screenshot}-dark.webp`} alt={screenshotAlt} class="shot shot-dark h-full w-full object-cover object-top" />
-        <img src={`/screens/${screenshot}-light.webp`} alt="" aria-hidden="true" class="shot shot-light h-full w-full object-cover object-top" />
+        <img src={path(`/screens/${screenshot}-dark.webp`)} alt={screenshotAlt} class="shot shot-dark h-full w-full object-cover object-top" />
+        <img src={path(`/screens/${screenshot}-light.webp`)} alt="" aria-hidden="true" class="shot shot-light h-full w-full object-cover object-top" />
       </div>
 
       <div class="prose-case max-w-[58ch] text-[16px] leading-relaxed">
@@ -62,10 +64,10 @@ const { Content } = await render(project);
 
       <div class="mt-8 flex justify-between border-t border-[var(--color-neutral-900)] pt-5 text-sm">
         {prev ? (
-          <a href={`/projekty/${prev.id}`} class="text-[var(--color-neutral-400)] no-underline">← {prev.data.title}</a>
+          <a href={path(`/projekty/${prev.id}`)} class="text-[var(--color-neutral-400)] no-underline">← {prev.data.title}</a>
         ) : <span></span>}
         {next ? (
-          <a href={`/projekty/${next.id}`} class="text-[var(--color-accent-300)] no-underline">{next.data.title} →</a>
+          <a href={path(`/projekty/${next.id}`)} class="text-[var(--color-accent-300)] no-underline">{next.data.title} →</a>
         ) : <span></span>}
       </div>
     </div>
