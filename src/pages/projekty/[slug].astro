@@ -5,6 +5,8 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 // pod inną nazwą — `url` jest tu zajęte przez pole z frontmattera projektu
 import { url as path } from '../../lib/paths';
+import { webpSize } from '../../lib/webp-size';
+import { fileURLToPath } from 'node:url';
 
 export async function getStaticPaths() {
   const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -21,11 +23,19 @@ const num = String(order).padStart(2, '0');
 const { Content } = await render(project);
 
 // Karuzela: wersja ciemna i jasna zawsze, plus ewentualne dodatkowe zdjęcia.
+// Wymiary czytane bezpośrednio z plików w public/screens/ (nie z URL-a —
+// path() dokleja base, a plik na dysku leży pod korzeniem projektu).
+const screensDir = fileURLToPath(new URL('../../../public/screens/', import.meta.url));
+
 const shots = [
-  { src: path(`/screens/${screenshot}-dark.webp`), alt: screenshotAlt, variant: 'dark' },
-  { src: path(`/screens/${screenshot}-light.webp`), alt: screenshotAlt, variant: 'light' },
-  ...extraShots.map((s) => ({ src: path(s.src), alt: s.alt, variant: 'extra' })),
-];
+  { file: `${screenshot}-dark.webp`, src: path(`/screens/${screenshot}-dark.webp`), alt: screenshotAlt, variant: 'dark' },
+  { file: `${screenshot}-light.webp`, src: path(`/screens/${screenshot}-light.webp`), alt: screenshotAlt, variant: 'light' },
+  ...extraShots.map((s) => ({ file: null, src: path(s.src), alt: s.alt, variant: 'extra' })),
+].map((s) => {
+  if (!s.file) return { ...s, width: 1600, height: 900 }; // rozsądny domyślny — extraShots poza public/screens/
+  const { width, height } = webpSize(screensDir + s.file);
+  return { ...s, width, height };
+});
 ---
 
 <Base title={`${title} — Michał Minor`} description={summary}>
@@ -61,12 +71,23 @@ const shots = [
       </div>
 
       <div class="shot-gallery relative mb-7 overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
-        <div class="shot-frame relative flex min-h-[280px] items-center justify-center">
+        <!-- Kontener nie ma stałych proporcji — dostaje aspect-ratio
+             aktywnego zdjęcia, więc dopasowuje się do zdjęcia (bez pustego
+             tła po bokach), a nie odwrotnie. Wartość startowa (pierwszy shot)
+             renderuje się od razu z serwera, żeby nic nie skakało przy
+             ładowaniu; skrypt zmienia ją przy każdym przełączeniu klatki. -->
+        <div
+          class:list={['shot-frame relative mx-auto flex max-h-[70vh] w-fit max-w-full items-center justify-center', shots.length > 1 && 'cursor-pointer']}
+          style={`aspect-ratio: ${shots[0].width} / ${shots[0].height}`}
+          data-ratios={JSON.stringify(shots.map((s) => `${s.width} / ${s.height}`))}
+        >
           {shots.map((s, i) => (
             <img
               src={s.src}
               alt={s.alt}
-              class:list={['shot', `shot-${s.variant}`, 'max-h-[60vh] max-w-full object-contain', i === 0 && 'is-active']}
+              width={s.width}
+              height={s.height}
+              class:list={['shot', `shot-${s.variant}`, 'block h-full w-full object-contain', i === 0 && 'is-active']}
             />
           ))}
 
@@ -137,13 +158,16 @@ const shots = [
 </script>
 
 <script>
-  // Karuzela: strzałki + kropki dla nawigacji ręcznej, autoplay w tle
-  // (7–9 s na klatkę) dopóki nikt nie kliknął pauzy ani nie najechał
-  // kursorem. Zatrzymuje się też poza ekranem, żeby nie tykać w tle.
+  // Karuzela: strzałki, kropki, klik w połowę zdjęcia i strzałki klawiatury
+  // dla nawigacji ręcznej; autoplay w tle (13–19 s na klatkę) dopóki nikt
+  // nie kliknął pauzy ani nie najechał kursorem. Zatrzymuje się też poza
+  // ekranem, żeby nie tykać w tle.
   const gallery = document.querySelector<HTMLElement>('.shot-gallery');
   const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (gallery) {
+    const frame = gallery.querySelector<HTMLElement>('.shot-frame')!;
+    const ratios = JSON.parse(frame.dataset.ratios ?? '[]') as string[];
     const shots = Array.from(gallery.querySelectorAll<HTMLElement>('.shot'));
     const dots = Array.from(gallery.querySelectorAll<HTMLButtonElement>('.shot-dot'));
     const prevBtn = gallery.querySelector<HTMLButtonElement>('.shot-arrow-prev');
@@ -166,6 +190,7 @@ const shots = [
         el.classList.toggle('is-active', n === index);
         el.setAttribute('aria-selected', String(n === index));
       });
+      if (ratios[index]) frame.style.aspectRatio = ratios[index];
     };
 
     const stop = () => {
@@ -179,7 +204,7 @@ const shots = [
       timer = window.setTimeout(() => {
         show(index + 1);
         schedule();
-      }, 7000 + Math.random() * 2000);
+      }, 13000 + Math.random() * 6000);
     };
 
     const goTo = (i: number) => {
@@ -190,6 +215,25 @@ const shots = [
     prevBtn?.addEventListener('click', () => goTo(index - 1));
     nextBtn?.addEventListener('click', () => goTo(index + 1));
     dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
+
+    // Klik w lewą/prawą połowę zdjęcia, żeby nie trzeba było celować
+    // w wąską strzałkę. Nie łapie kliknięć na samych strzałkach/kropkach —
+    // te mają własne listenery i closest() je wyłapuje wcześniej.
+    frame.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('.shot-arrow') || shots.length < 2) return;
+      const rect = frame.getBoundingClientRect();
+      const clickedLeft = (e as MouseEvent).clientX - rect.left < rect.width / 2;
+      goTo(index + (clickedLeft ? -1 : 1));
+    });
+
+    // Strzałki klawiatury, gdy galeria (lub coś w niej) ma fokus.
+    gallery.setAttribute('tabindex', '0');
+    gallery.addEventListener('keydown', (e) => {
+      if (shots.length < 2) return;
+      if (e.key === 'ArrowLeft') goTo(index - 1);
+      if (e.key === 'ArrowRight') goTo(index + 1);
+    });
 
     playBtn?.addEventListener('click', () => {
       userPaused = !userPaused;

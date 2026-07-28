@@ -254,6 +254,18 @@ html {
   display: block;
 }
 
+/* Kontener przejmuje proporcje aktywnego zdjęcia (aspect-ratio ustawiane
+   inline przez skrypt) — zmiana animowana, żeby przeskok między bardzo
+   różnymi proporcjami (np. pionowy medi3 -> poziomy portal) nie szarpał. */
+.shot-frame {
+  transition: aspect-ratio 0.4s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .shot-frame {
+    transition: none;
+  }
+}
+
 .shot-arrow {
   position: absolute;
   top: 50%;

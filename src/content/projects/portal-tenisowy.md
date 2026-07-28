@@ -17,8 +17,12 @@ Klub prowadził rezerwacje i turnieje w arkuszu i przez telefon.
 
 ## Rozwiązanie
 
-Django jako panel i API, Astro jako szybki front, wszystko w Dockerze na
-VPS-ie — z backupami i jednym poleceniem do wdrożenia.
+Django jako panel i API — obsługuje rezerwacje kortów, drabinki turniejowe
+i ranking klubowy. Astro po stronie frontu, żeby strony ładowały się
+błyskawicznie tam, gdzie nie trzeba pełnej interaktywności. Całość stoi
+w Dockerze na własnym VPS-ie, z automatycznymi backupami bazy i wdrożeniem
+jednym poleceniem przez GitHub Actions — bez ręcznego wchodzenia na
+serwer przy każdej zmianie.
 
 ## Efekt
 
