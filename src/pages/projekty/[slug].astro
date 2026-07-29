@@ -122,10 +122,10 @@ const shots = [
         </div>
       </div>
 
-      {/* Blok wyśrodkowany, a nie rozciągnięty na pełne 1120px: szerokość
-          wiersza zostaje w granicy wygodnego czytania (~58 znaków), a pusty
-          margines rozkłada się symetrycznie zamiast zionąć tylko z prawej. */}
-      <div class="prose-case mx-auto max-w-[58ch] text-[16px] leading-relaxed">
+      {/* Przyklejone do lewej jak reszta strony (zdjęcia, nagłówek) - blok
+          wyśrodkowany na środku 1120px wyglądał jak oderwana wysepka tekstu.
+          Szerokość zostaje ograniczona do ~58 znaków dla wygody czytania. */}
+      <div class="prose-case max-w-[58ch] text-[16px] leading-relaxed">
         <Content />
       </div>
 

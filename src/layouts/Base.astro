@@ -54,10 +54,7 @@ const ogImage = new URL('/photo/michal-minor.webp', Astro.site);
       const io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-visible');
-              io.unobserve(entry.target);
-            }
+            entry.target.classList.toggle('is-visible', entry.isIntersecting);
           }
         },
         { threshold: 0.15 }
