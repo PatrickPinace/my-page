@@ -9,7 +9,7 @@
 @import "@fontsource/ibm-plex-sans/600.css";
 
 :root {
-  /* Nocturne — motyw domyślny. Kolejny motyw (Ruda) nadpisze --color-accent-*
+  /* Nocturne - motyw domyślny. Kolejny motyw (Ruda) nadpisze --color-accent-*
      i --color-bg-* przez [data-theme="ruda"] bez zmian w komponentach. */
   --color-bg: #0e0f17;
   --color-surface: #1b1d29;
@@ -39,13 +39,13 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
 
-  /* Składowe rgb rozdzielone SPACJAMI, nie przecinkami — te tokeny trafiają
+  /* Składowe rgb rozdzielone SPACJAMI, nie przecinkami - te tokeny trafiają
      do rgb(var(--x) / alfa), a mieszanie przecinków z ukośnikiem jest
      nieprawidłowym CSS-em i przeglądarka po cichu odrzuca całą deklarację
      (tło wychodzi wtedy przezroczyste, bez żadnego błędu w konsoli). */
-  /* rgb() akcentu — do tła chipów, gdzie potrzebna przezroczystość */
+  /* rgb() akcentu - do tła chipów, gdzie potrzebna przezroczystość */
   --accent-rgb: 145 132 217;
-  /* rgb() tła — do półprzezroczystego paska nawigacji */
+  /* rgb() tła - do półprzezroczystego paska nawigacji */
   --bg-rgb: 14 15 23;
   /* tło gradientu pod meta-info na karcie projektu */
   --card-veil: 14 15 23;
@@ -53,7 +53,7 @@
   --on-accent: #12111a;
 }
 
-/* Ruda — ciepły grafit + miedź. Nadpisuje wyłącznie tokeny;
+/* Ruda - ciepły grafit + miedź. Nadpisuje wyłącznie tokeny;
    komponenty nie wiedzą, który motyw jest aktywny. */
 [data-theme="ruda"] {
   --color-bg: #14120f;
@@ -74,7 +74,7 @@
   --color-accent-400: #e5975d;
   --color-accent-700: #6b4426;
 
-  /* spacje, nie przecinki — patrz komentarz przy motywie Nocturne */
+  /* spacje, nie przecinki - patrz komentarz przy motywie Nocturne */
   --accent-rgb: 224 138 75;
   --bg-rgb: 20 18 15;
   --card-veil: 20 18 15;
@@ -181,14 +181,14 @@ hr.hr {
 
 /* Pasek nawigacji przyklejony do góry. Tło półprzezroczyste z rozmyciem,
    żeby treść przewijająca się pod spodem nie prześwitywała ostro.
-   Hairline u dołu pojawia się dopiero po odjechaniu od góry — na samej
+   Hairline u dołu pojawia się dopiero po odjechaniu od góry - na samej
    górze strony pasek ma zlewać się z tłem. */
 .site-header {
-  /* Pasek zostaje mocno przezroczysty — ma pokazywać treść pod spodem.
+  /* Pasek zostaje mocno przezroczysty - ma pokazywać treść pod spodem.
      Czytelność bierze się nie stąd, tylko z pastylek pod samymi napisami
      (patrz .site-header a / .theme-toggle): każdy napis niesie własne,
      prawie pełne tło, więc nie obchodzi go, co akurat pod nim przewija.
-     Rozmycie samo w sobie nie wystarcza — jasne tło pozostaje jasne. */
+     Rozmycie samo w sobie nie wystarcza - jasne tło pozostaje jasne. */
   background: rgb(var(--bg-rgb) / 0.55);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
@@ -227,12 +227,12 @@ html {
 }
 
 /* Kafelki siatki projektów: dwa warianty (ciemny/jasny) tego samego
-   screena leżą jeden na drugim i przenikają się automatycznie — który jest
+   screena leżą jeden na drugim i przenikają się automatycznie - który jest
    na wierzchu, decyduje skrypt w ProjectsGrid, niezależnie od motywu.
    Bez JS-a widoczny zostaje wariant ciemny (pierwszy w DOM). */
 /* Uwaga: te reguły MUSZĄ być zawężone do .shot-pair (kontener kafla).
    Wcześniej celowały w samo .shot i wyciekały do karuzeli na podstronie
-   projektu, gdzie przełącza display, a nie opacity — jasny slajd dostawał
+   projektu, gdzie przełącza display, a nie opacity - jasny slajd dostawał
    tam display:block i opacity:0 naraz, czyli pusty prostokąt zamiast
    zdjęcia. */
 .shot-pair .shot {
@@ -254,7 +254,7 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Bez animowanego przełączania — zostaje sam wariant ciemny. */
+  /* Bez animowanego przełączania - zostaje sam wariant ciemny. */
   .shot-pair .shot {
     transition: none;
   }
@@ -267,7 +267,7 @@ html {
 }
 
 /* Karuzela na podstronie projektu: zdjęcia w pełni widoczne (object-contain),
-   więc nie mogą się nakładać przez position:absolute jak na kafelkach —
+   więc nie mogą się nakładać przez position:absolute jak na kafelkach -
    psułoby to wysokość kontenera. Przełącza je display, sterowane klasą
    .is-active ze skryptu w [slug].astro. */
 .shot-gallery .shot {
@@ -279,7 +279,7 @@ html {
 }
 
 /* Kontener przejmuje proporcje aktywnego zdjęcia (aspect-ratio ustawiane
-   inline przez skrypt) — zmiana animowana, żeby przeskok między bardzo
+   inline przez skrypt) - zmiana animowana, żeby przeskok między bardzo
    różnymi proporcjami (np. pionowy medi3 -> poziomy portal) nie szarpał. */
 .shot-frame {
   transition: aspect-ratio 0.4s ease;
@@ -314,7 +314,7 @@ html {
 }
 
 /* Pastylki na wysuwanym pasku kafla ("rola" / "case study"). Tło musi tu
-   siedzieć w regule CSS, nie w atrybucie style — składnia rgb(var() / a)
+   siedzieć w regule CSS, nie w atrybucie style - składnia rgb(var() / a)
    podstawiana inline nie przechodzi przez parser. Krycie 0.92 sprawia, że
    napis jest czytelny także na jasnych zrzutach, gdzie sam gradient nad
    obrazkiem nie dawał rady. */
@@ -329,13 +329,13 @@ html {
 .shot-arrow-next {
   right: 14px;
 }
-/* Jedna klatka — nic do przełączania, strzałki i sterowanie znikają. */
+/* Jedna klatka - nic do przełączania, strzałki i sterowanie znikają. */
 .shot-gallery.has-single .shot-arrow,
 .shot-gallery.has-single .shot-controls {
   display: none;
 }
 
-/* Pasek kontrolek stoi POD kadrem, w normalnym przepływie — nie na nim,
+/* Pasek kontrolek stoi POD kadrem, w normalnym przepływie - nie na nim,
    żeby nigdy nie zasłaniać dołu zdjęcia (problem przy panoramicznych
    screenach, gdzie object-contain wypełniał całą szerokość kadru). */
 .shot-controls {

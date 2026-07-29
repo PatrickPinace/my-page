@@ -19,7 +19,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 <script>
   // Każdy kadr przełącza się własnym, niezależnym rytmem (7–9 s), żeby
   // siatka nie mrugała zbiorczo. Ruch pauzuje, gdy sekcja jest poza
-  // ekranem albo karta jest pod kursorem — wtedy screen ma stać.
+  // ekranem albo karta jest pod kursorem - wtedy screen ma stać.
   const pairs = Array.from(document.querySelectorAll<HTMLElement>('.shot-pair'));
   const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -38,7 +38,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
       timers.delete(el);
     };
 
-    // Rusza dopiero, gdy kadr wjedzie w widok — i zatrzymuje się po wyjeździe.
+    // Rusza dopiero, gdy kadr wjedzie w widok - i zatrzymuje się po wyjeździe.
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {

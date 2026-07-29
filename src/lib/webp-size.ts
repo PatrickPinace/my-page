@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 /**
- * Wymiary pliku WebP bez zależności — czyta się z nagłówka kontenera RIFF.
+ * Wymiary pliku WebP bez zależności - czyta się z nagłówka kontenera RIFF.
  * Potrzebne w buildzie, żeby ustawić aspect-ratio karuzeli od razu w HTML
  * (bez tego kontener migałby przy ładowaniu obrazka).
  */

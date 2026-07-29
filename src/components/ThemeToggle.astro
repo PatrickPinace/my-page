@@ -1,7 +1,7 @@
 ---
 /** Przełącznik Nocturne ↔ Ruda. Stan trzymany na <html data-theme>,
  *  zapisywany w localStorage. Skrypt ustawiający motyw przed pierwszym
- *  malowaniem jest w Base.astro — tu tylko obsługa kliknięcia. */
+ *  malowaniem jest w Base.astro - tu tylko obsługa kliknięcia. */
 ---
 
 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Zmień motyw kolorystyczny">
@@ -21,7 +21,7 @@
     try {
       localStorage.setItem('theme', next);
     } catch {
-      /* tryb prywatny — motyw zadziała, po prostu się nie zapamięta */
+      /* tryb prywatny - motyw zadziała, po prostu się nie zapamięta */
     }
   });
 </script>

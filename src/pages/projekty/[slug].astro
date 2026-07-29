@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-// pod inną nazwą — `url` jest tu zajęte przez pole z frontmattera projektu
+// pod inną nazwą - `url` jest tu zajęte przez pole z frontmattera projektu
 import { url as path } from '../../lib/paths';
 import { webpSize } from '../../lib/webp-size';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,7 @@ const num = String(order).padStart(2, '0');
 const { Content } = await render(project);
 
 // Karuzela: wersja ciemna i jasna zawsze, plus ewentualne dodatkowe zdjęcia.
-// Wymiary czytane bezpośrednio z plików w public/screens/ (nie z URL-a —
+// Wymiary czytane bezpośrednio z plików w public/screens/ (nie z URL-a -
 // path() dokleja base, a plik na dysku leży pod korzeniem projektu).
 const screensDir = fileURLToPath(new URL('../../../public/screens/', import.meta.url));
 
@@ -32,13 +32,13 @@ const shots = [
   { file: `${screenshot}-light.webp`, src: path(`/screens/${screenshot}-light.webp`), alt: screenshotAlt, variant: 'light' },
   ...extraShots.map((s) => ({ file: null, src: path(s.src), alt: s.alt, variant: 'extra' })),
 ].map((s) => {
-  if (!s.file) return { ...s, width: 1600, height: 900 }; // rozsądny domyślny — extraShots poza public/screens/
+  if (!s.file) return { ...s, width: 1600, height: 900 }; // rozsądny domyślny - extraShots poza public/screens/
   const { width, height } = webpSize(screensDir + s.file);
   return { ...s, width, height };
 });
 ---
 
-<Base title={`${title} — Michał Minor`} description={summary}>
+<Base title={`${title} - Michał Minor`} description={summary}>
   <Header />
   <div class="mx-auto max-w-[1120px]">
     <div class="px-6 pb-16 md:px-14">
@@ -71,7 +71,7 @@ const shots = [
       </div>
 
       <div class="shot-gallery relative mb-7 overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-md)]" style="background: var(--color-surface)">
-        <!-- Kontener nie ma stałych proporcji — dostaje aspect-ratio
+        <!-- Kontener nie ma stałych proporcji - dostaje aspect-ratio
              aktywnego zdjęcia, więc dopasowuje się do zdjęcia (bez pustego
              tła po bokach), a nie odwrotnie. Wartość startowa (pierwszy shot)
              renderuje się od razu z serwera, żeby nic nie skakało przy
@@ -91,14 +91,14 @@ const shots = [
             />
           ))}
 
-          <!-- Strzałki wycentrowane na wysokości zdjęcia, nie całej galerii —
+          <!-- Strzałki wycentrowane na wysokości zdjęcia, nie całej galerii -
                dlatego siedzą w .shot-frame, a nie bezpośrednio w .shot-gallery.
                Chowają się same, gdy klatka jest tylko jedna (.has-single). -->
           <button type="button" class="shot-arrow shot-arrow-prev" aria-label="Poprzednie zdjęcie">‹</button>
           <button type="button" class="shot-arrow shot-arrow-next" aria-label="Następne zdjęcie">›</button>
         </div>
 
-        <!-- Pasek pod zdjęciem, osobne miejsce na pauzę/kropki — nie nachodzi na kadr. -->
+        <!-- Pasek pod zdjęciem, osobne miejsce na pauzę/kropki - nie nachodzi na kadr. -->
         <div class="shot-controls">
           <button type="button" class="shot-play" aria-label="Zatrzymaj automatyczną zmianę zdjęć">
             <span class="icon-pause">⏸</span>
@@ -118,7 +118,10 @@ const shots = [
         </div>
       </div>
 
-      <div class="prose-case max-w-[58ch] text-[16px] leading-relaxed">
+      {/* Blok wyśrodkowany, a nie rozciągnięty na pełne 1120px: szerokość
+          wiersza zostaje w granicy wygodnego czytania (~58 znaków), a pusty
+          margines rozkłada się symetrycznie zamiast zionąć tylko z prawej. */}
+      <div class="prose-case mx-auto max-w-[58ch] text-[16px] leading-relaxed">
         <Content />
       </div>
 
@@ -140,7 +143,7 @@ const shots = [
   // Nawigacja prev/next między projektami to zwykłe przeładowanie strony,
   // więc przeglądarka domyślnie wraca na górę. Zapisujemy pozycję scrolla
   // pod kluczem docelowego URL-a tuż przed opuszczeniem strony i odtwarzamy
-  // ją, jeśli wpis czeka — po jednym użyciu wpis kasujemy, żeby zwykłe
+  // ją, jeśli wpis czeka - po jednym użyciu wpis kasujemy, żeby zwykłe
   // wejście na podstronę (np. z kafelka) zawsze startowało od góry.
   const SCROLL_KEY_PREFIX = 'scrollTo:';
 
@@ -217,7 +220,7 @@ const shots = [
     dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
 
     // Klik w lewą/prawą połowę zdjęcia, żeby nie trzeba było celować
-    // w wąską strzałkę. Nie łapie kliknięć na samych strzałkach/kropkach —
+    // w wąską strzałkę. Nie łapie kliknięć na samych strzałkach/kropkach -
     // te mają własne listenery i closest() je wyłapuje wcześniej.
     frame.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;

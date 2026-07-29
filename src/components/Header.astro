@@ -4,7 +4,7 @@ import { url } from '../lib/paths';
 ---
 
 <!-- Sentinel: dopóki jest widoczny, pasek stoi na samej górze strony.
-     Tańsze niż nasłuchiwanie scrolla — obserwator odpala się tylko na
+     Tańsze niż nasłuchiwanie scrolla - obserwator odpala się tylko na
      przecięciu, nie przy każdym pikselu przewinięcia. -->
 <div id="header-sentinel" aria-hidden="true"></div>
 
@@ -14,7 +14,7 @@ import { url } from '../lib/paths';
       Michał Minor
     </a>
     <nav class="flex items-center gap-4 text-[var(--color-neutral-400)] md:gap-6">
-      <!-- na wąskich ekranach zostaje sam Kontakt i przełącznik —
+      <!-- na wąskich ekranach zostaje sam Kontakt i przełącznik -
            Projekty i O mnie są i tak tuż pod nagłówkiem -->
       <a href={url('/#projekty')} class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">Projekty</a>
       <a href={url('/#o-mnie')} class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">O mnie</a>

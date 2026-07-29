@@ -9,7 +9,7 @@ interface Props {
 
 const { title, description } = Astro.props;
 
-// Astro.site pochodzi z SITE_URL — bez niego zostaje localhost i tagi
+// Astro.site pochodzi z SITE_URL - bez niego zostaje localhost i tagi
 // kanoniczne po prostu nie mają sensu w produkcji.
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/photo/michal-minor.webp', Astro.site);

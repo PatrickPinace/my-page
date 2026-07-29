@@ -46,7 +46,7 @@ jobs:
       - name: Zbuduj stronę
         run: pnpm build
         env:
-          # configure-pages wylicza oba adresy z ustawień repo — dzięki temu
+          # configure-pages wylicza oba adresy z ustawień repo - dzięki temu
           # działa zarówno pod /my-page/, jak i na własnej domenie w korzeniu
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}

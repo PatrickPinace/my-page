@@ -23,7 +23,7 @@ jobs:
       - name: Zainstaluj pnpm
         uses: pnpm/action-setup@v4
         with:
-          # ta sama wersja co lokalnie — lockfile jest nią wygenerowany,
+          # ta sama wersja co lokalnie - lockfile jest nią wygenerowany,
           # a --frozen-lockfile potrafi się wywrócić przy innej
           version: 11.5.1
           run_install: false
@@ -40,14 +40,14 @@ jobs:
       - name: Zbuduj stronę
         run: pnpm build
         env:
-          # Pełny adres strony — trafia do sitemap i tagów kanonicznych.
+          # Pełny adres strony - trafia do sitemap i tagów kanonicznych.
           # Ustaw w ustawieniach repo: Settings → Secrets and variables →
           # Actions → Variables, np. https://minor.pl
           SITE_URL: ${{ vars.SITE_URL }}
 
       - name: Zweryfikuj build
         run: |
-          test -f dist/index.html || { echo "Brak dist/index.html — build nie wyszedł"; exit 1; }
+          test -f dist/index.html || { echo "Brak dist/index.html - build nie wyszedł"; exit 1; }
           echo "Zbudowane strony:"; find dist -name '*.html' | sort
 
       - name: Wgraj klucz SSH
@@ -67,7 +67,7 @@ jobs:
         run: |
           # --delete usuwa ze zdalnego katalogu pliki, których już nie ma
           # w buildzie. Ścieżka docelowa MUSI wskazywać wyłącznie na katalog
-          # tej strony — rsync wyczyści wszystko, co jest w środku.
+          # tej strony - rsync wyczyści wszystko, co jest w środku.
           rsync -avz --delete \
             -e "ssh -p ${VPS_PORT:-22}" \
             dist/ "$VPS_USER@$VPS_HOST:$VPS_PATH/"

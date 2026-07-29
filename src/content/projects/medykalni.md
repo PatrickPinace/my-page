@@ -6,14 +6,14 @@ role: [full-stack]
 url: https://medykalni.pages.dev
 hosting: Cloudflare Pages
 screenshot: medykalni
-screenshotAlt: medykalni — strona szkoleń dla położnych i placówek medycznych
+screenshotAlt: medykalni - strona szkoleń dla położnych i placówek medycznych
 tile: normal
 order: 5
 ---
 
 ## Problem
 
-Firma szkoleniowa potrzebowała strony, którą sama mogłaby aktualizować —
+Firma szkoleniowa potrzebowała strony, którą sama mogłaby aktualizować -
 zmiana ceny czy terminu kursu nie powinna wymagać dotykania kodu.
 
 ## Rozwiązanie
