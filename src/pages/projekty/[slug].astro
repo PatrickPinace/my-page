@@ -69,8 +69,8 @@ const shots = [
         </div>
         <div>
           <div class="mb-1 text-[var(--color-neutral-500)]">Link</div>
-          {url && <a href={url} class="text-[var(--color-accent-300)] no-underline">na żywo →</a>}
-          {repo && !url && <a href={repo} class="text-[var(--color-accent-300)] no-underline">repo →</a>}
+          {url && <a href={url} target="_blank" rel="noopener" class="text-[var(--color-accent-300)] no-underline">na żywo →</a>}
+          {repo && !url && <a href={repo} target="_blank" rel="noopener" class="text-[var(--color-accent-300)] no-underline">repo →</a>}
         </div>
       </div>
 
