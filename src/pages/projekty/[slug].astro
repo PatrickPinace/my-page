@@ -152,22 +152,15 @@ const shots = [
 <script>
   // Nawigacja prev/next między projektami to zwykłe przeładowanie strony,
   // więc przeglądarka domyślnie wraca na górę. Zapisujemy pozycję scrolla
-  // pod kluczem docelowego URL-a tuż przed opuszczeniem strony i odtwarzamy
-  // ją, jeśli wpis czeka - po jednym użyciu wpis kasujemy, żeby zwykłe
-  // wejście na podstronę (np. z kafelka) zawsze startowało od góry.
-  const SCROLL_KEY_PREFIX = 'scrollTo:';
-
+  // pod kluczem docelowego URL-a tuż przed opuszczeniem strony - odczyt i
+  // przywrócenie pozycji siedzi w Base.astro, w inline-skrypcie w <head>,
+  // żeby wykonać się przed pierwszym malowaniem (inaczej widać skok/
+  // "wysunięcie" treści po tym, jak przeglądarka zdąży narysować górę strony).
   document.querySelectorAll<HTMLAnchorElement>('.case-nav-link').forEach((link) => {
     link.addEventListener('click', () => {
-      sessionStorage.setItem(SCROLL_KEY_PREFIX + link.href, String(window.scrollY));
+      sessionStorage.setItem('scrollTo:' + link.href, String(window.scrollY));
     });
   });
-
-  const savedY = sessionStorage.getItem(SCROLL_KEY_PREFIX + location.href);
-  if (savedY !== null) {
-    sessionStorage.removeItem(SCROLL_KEY_PREFIX + location.href);
-    window.scrollTo(0, Number(savedY));
-  }
 </script>
 
 <script>

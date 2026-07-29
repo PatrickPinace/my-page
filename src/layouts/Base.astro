@@ -46,9 +46,58 @@ const ogImage = new URL('/photo/michal-minor.webp', Astro.site);
         }
       } catch (e) {}
     </script>
+    <script is:inline>
+      // Przywrócenie zapamiętanej pozycji scrolla (nawigacja prev/next między
+      // projektami). scrollTo() nie ma efektu, dopóki <body> nie istnieje -
+      // dokument nie ma jeszcze wysokości do przewinięcia - więc nie można
+      // tego zrobić tu, w <head>. Zamiast tego chowamy stronę (visibility)
+      // do czasu, aż skrypt na końcu <body> zdąży ustawić scroll: przeglądarka
+      // nigdy nie maluje "złej", nieprzewiniętej klatki, więc nie widać
+      // charakterystycznego skoku/wysunięcia treści.
+      // scrollRestoration wyłączone, żeby wbudowany mechanizm przeglądarki
+      // nie kłócił się z naszym ręcznym przywracaniem.
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      try {
+        if (sessionStorage.getItem('scrollTo:' + location.href) !== null) {
+          document.documentElement.style.visibility = 'hidden';
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <slot />
+    <script is:inline>
+      // Druga połowa przywracania scrolla (patrz komentarz w <head>) - w tym
+      // miejscu <body> już istnieje, ale obrazy (zdjęcia w karuzeli) mogą
+      // wciąż się ładować, więc dokument nie ma jeszcze docelowej wysokości -
+      // scrollTo() przed pełnym załadowaniem trafiał w za krótką stronę i
+      // później zjeżdżał, gdy obraz doładował layout. Stąd restore czeka na
+      // window.load (albo, gdy strona jest już complete, wykonuje się od
+      // razu) - dopiero wtedy odsłaniamy stronę.
+      (function () {
+        var key = 'scrollTo:' + location.href;
+        var savedY = null;
+        try {
+          savedY = sessionStorage.getItem(key);
+        } catch (e) {}
+
+        var restore = function () {
+          try {
+            if (savedY !== null) {
+              sessionStorage.removeItem(key);
+              window.scrollTo(0, Number(savedY));
+            }
+          } catch (e) {}
+          document.documentElement.style.visibility = '';
+        };
+
+        if (savedY !== null && document.readyState !== 'complete') {
+          window.addEventListener('load', restore, { once: true });
+        } else {
+          restore();
+        }
+      })();
+    </script>
     <script>
       const els = document.querySelectorAll<HTMLElement>('.reveal');
       const io = new IntersectionObserver(
