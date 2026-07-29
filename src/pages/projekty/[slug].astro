@@ -10,9 +10,13 @@ import { fileURLToPath } from 'node:url';
 
 export async function getStaticPaths() {
   const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  const n = projects.length;
+  // Nawigacja zapętlona: z ostatniego projektu "dalej" wraca do pierwszego,
+  // z pierwszego "wstecz" prowadzi do ostatniego - stąd modulo zamiast
+  // zwykłego i ± 1, które na krańcach dawałoby undefined.
   return projects.map((project, i) => ({
     params: { slug: project.id },
-    props: { project, prev: projects[i - 1], next: projects[i + 1] },
+    props: { project, prev: projects[(i - 1 + n) % n], next: projects[(i + 1) % n] },
   }));
 }
 
