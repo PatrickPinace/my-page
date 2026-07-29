@@ -37,7 +37,7 @@ const num = String(index + 1).padStart(2, '0');
     </div>
 
     {inProgress && (
-      <div class="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px]" style="background: rgb(var(--card-veil) / .95); border-color: var(--color-accent-700); color: var(--color-accent-300)">
+      <div class="card-pill absolute left-4 top-4 flex items-center gap-1.5 border font-mono text-[11px]" style="border-color: var(--color-accent-700); color: var(--color-accent-300)">
         <span class="h-1.5 w-1.5 rounded-full" style="background: var(--color-accent-400); animation: nx-pulse 1.8s ease-in-out infinite"></span>
         w budowie · ~95%
       </div>
@@ -47,12 +47,14 @@ const num = String(index + 1).padStart(2, '0');
       class="absolute bottom-0 left-0 h-0.5 w-0 bg-[var(--color-accent)] transition-[width] duration-200 group-hover:w-full"
     ></div>
 
+    {/* Napisy w pastylkach z własnym, prawie pełnym tłem — gradient nad
+        screenem nie wystarczał, bo na jasnych zrzutach tekst i tak się gubił.
+        Pastylka niesie kontrast ze sobą, niezależnie od tego, co pod nią. */}
     <div
-      class="pointer-events-none absolute inset-x-0 bottom-0.5 flex translate-y-2 items-end justify-between px-3.5 pb-3 pt-7 font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100"
-      style={`background: linear-gradient(0deg, rgb(var(--card-veil) / .95) 0%, rgb(var(--card-veil) / .95) 45%, transparent 100%); text-shadow: 0 1px 3px rgb(var(--card-veil) / .9)`}
+      class="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-2 items-end justify-between gap-2 px-3 pb-3 font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100"
     >
-      <span class="text-[var(--color-neutral-300)]">rola: {role.join(', ')}</span>
-      <span class="text-[var(--color-accent-300)]">case study →</span>
+      <span class="card-pill text-[var(--color-neutral-300)]">rola: {role.join(', ')}</span>
+      <span class="card-pill whitespace-nowrap text-[var(--color-accent-300)]">case study →</span>
     </div>
   </div>
 

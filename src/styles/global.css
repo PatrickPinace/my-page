@@ -39,12 +39,16 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
 
+  /* Składowe rgb rozdzielone SPACJAMI, nie przecinkami — te tokeny trafiają
+     do rgb(var(--x) / alfa), a mieszanie przecinków z ukośnikiem jest
+     nieprawidłowym CSS-em i przeglądarka po cichu odrzuca całą deklarację
+     (tło wychodzi wtedy przezroczyste, bez żadnego błędu w konsoli). */
   /* rgb() akcentu — do tła chipów, gdzie potrzebna przezroczystość */
-  --accent-rgb: 145, 132, 217;
+  --accent-rgb: 145 132 217;
   /* rgb() tła — do półprzezroczystego paska nawigacji */
-  --bg-rgb: 14, 15, 23;
+  --bg-rgb: 14 15 23;
   /* tło gradientu pod meta-info na karcie projektu */
-  --card-veil: 14, 15, 23;
+  --card-veil: 14 15 23;
   /* kolor tekstu na wypełnieniu akcentem (przycisk główny) */
   --on-accent: #12111a;
 }
@@ -70,9 +74,10 @@
   --color-accent-400: #e5975d;
   --color-accent-700: #6b4426;
 
-  --accent-rgb: 224, 138, 75;
-  --bg-rgb: 20, 18, 15;
-  --card-veil: 20, 18, 15;
+  /* spacje, nie przecinki — patrz komentarz przy motywie Nocturne */
+  --accent-rgb: 224 138 75;
+  --bg-rgb: 20 18 15;
+  --card-veil: 20 18 15;
   --on-accent: #17120d;
 
   color-scheme: dark;
@@ -179,25 +184,33 @@ hr.hr {
    Hairline u dołu pojawia się dopiero po odjechaniu od góry — na samej
    górze strony pasek ma zlewać się z tłem. */
 .site-header {
-  /* Sama przezroczystość + blur nie wystarczały: bardzo jasne tło pod
-     paskiem (np. kremowy screen medykalni) wciąż przebijało na tyle,
-     że tekst tracił kontrast — nawet przy wysokim kryciu. Krycie 0.9
-     na samej górze strony (gdzie jeszcze nie ma .is-stuck) plus
-     text-shadow na linkach (patrz niżej) jako druga, niezależna od tła
-     warstwa zabezpieczenia czytelności. */
-  background: rgb(var(--bg-rgb) / 0.9);
+  /* Pasek zostaje mocno przezroczysty — ma pokazywać treść pod spodem.
+     Czytelność bierze się nie stąd, tylko z pastylek pod samymi napisami
+     (patrz .site-header a / .theme-toggle): każdy napis niesie własne,
+     prawie pełne tło, więc nie obchodzi go, co akurat pod nim przewija.
+     Rozmycie samo w sobie nie wystarcza — jasne tło pozostaje jasne. */
+  background: rgb(var(--bg-rgb) / 0.55);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid transparent;
   transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 .site-header.is-stuck {
-  background: rgb(var(--bg-rgb) / 0.97);
+  background: rgb(var(--bg-rgb) / 0.75);
   border-bottom-color: var(--color-neutral-800);
 }
+
+/* Pastylki: nośnik kontrastu, niezależny od tego, co leży pod paskiem. */
 .site-header a,
 .site-header .theme-toggle {
-  text-shadow: 0 1px 3px rgb(var(--bg-rgb) / 0.9);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(var(--bg-rgb) / 0.92);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.site-header a:hover,
+.site-header .theme-toggle:hover {
+  background: rgb(var(--bg-rgb) / 0.98);
 }
 
 /* Przeglądarki bez backdrop-filter dostają pełne tło zamiast prześwitu. */
@@ -293,6 +306,17 @@ html {
 .shot-arrow:hover {
   background: rgb(var(--card-veil) / 0.8);
   border-color: var(--color-accent-700);
+}
+
+/* Pastylki na wysuwanym pasku kafla ("rola" / "case study"). Tło musi tu
+   siedzieć w regule CSS, nie w atrybucie style — składnia rgb(var() / a)
+   podstawiana inline nie przechodzi przez parser. Krycie 0.92 sprawia, że
+   napis jest czytelny także na jasnych zrzutach, gdzie sam gradient nad
+   obrazkiem nie dawał rady. */
+.card-pill {
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  background: rgb(var(--card-veil) / 0.92);
 }
 .shot-arrow-prev {
   left: 14px;
