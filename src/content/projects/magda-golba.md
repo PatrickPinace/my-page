@@ -14,16 +14,16 @@ order: 6
 ## Problem
 
 Doradczyni laktacyjna potrzebowała jednej, spójnej strony zamiast wizytówki
-rozrzuconej między social media i pojedynczym formularzem bez kontekstu.
+rozrzuconej między social media&nbsp;i pojedynczym formularzem bez&nbsp;kontekstu.
 
 ## Rozwiązanie
 
-Astro i Tailwind, w pełni statycznie, wdrażane przez GitHub Actions.
-Zapisy idą przez Google Forms zamiast własnego backendu - przy tej skali
-mniej ruchomych części znaczy mniej rzeczy do zepsucia. Oferta i opinie
-pacjentek osadzone na stronie, bez odsyłania gdzie indziej.
+Astro&nbsp;i Tailwind, w&nbsp;pełni statycznie, wdrażane przez GitHub Actions.
+Zapisy idą przez Google Forms zamiast własnego backendu - przy&nbsp;tej skali
+mniej ruchomych części znaczy mniej rzeczy do&nbsp;zepsucia. Oferta&nbsp;i opinie
+pacjentek osadzone na&nbsp;stronie, bez&nbsp;odsyłania gdzie indziej.
 
 ## Efekt
 
-Jedno miejsce, do którego można odesłać zamiast tłumaczyć przez telefon.
+Jedno miejsce, do&nbsp;którego można odesłać zamiast tłumaczyć przez&nbsp;telefon.
 Utrzymanie praktycznie zerowe.

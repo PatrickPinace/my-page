@@ -13,17 +13,17 @@ order: 2
 
 ## Problem
 
-Kilka gabinetów, kilka form płatności i kilka formularzy zapisów rozrzuconych
-bez wspólnego miejsca - pacjentka musiała sama wiedzieć, gdzie czego szukać.
+Kilka gabinetów, kilka form płatności&nbsp;i kilka formularzy zapisów rozrzuconych
+bez&nbsp;wspólnego miejsca - pacjentka musiała sama wiedzieć, gdzie czego szukać.
 
 ## Rozwiązanie
 
-Astro, w pełni statycznie, bez CMS-a. Cennik, zespół i adresy trzymane jako
-dane w repo, więc aktualizacja to zmiana pliku, nie grzebanie w kodzie.
-Jedna strona zapisów kieruje do właściwego formularza, osobna zbiera numery
-kont z kopiowaniem jednym kliknięciem. Projekt, wykonanie i wdrożenie na VPS.
+Astro, w&nbsp;pełni statycznie, bez&nbsp;CMS-a. Cennik, zespół&nbsp;i adresy trzymane jako
+dane w&nbsp;repo, więc aktualizacja to&nbsp;zmiana pliku, nie&nbsp;grzebanie w&nbsp;kodzie.
+Jedna strona zapisów kieruje do&nbsp;właściwego formularza, osobna zbiera numery
+kont z&nbsp;kopiowaniem jednym kliknięciem. Projekt, wykonanie&nbsp;i wdrożenie na&nbsp;VPS.
 
 ## Efekt
 
-Jedno miejsce zamiast rozrzuconych formularzy i numerów kont. Po drodze
-zdjęcia z 10–14 MB zeszły do 60–130 KB - realna różnica na słabszym łączu.
+Jedno miejsce zamiast rozrzuconych formularzy&nbsp;i numerów kont. Po&nbsp;drodze
+zdjęcia z&nbsp;10–14 MB zeszły do&nbsp;60–130 KB - realna różnica na&nbsp;słabszym łączu.

@@ -15,18 +15,18 @@ order: 4
 
 ## Problem
 
-Szukanie napisów po kilku serwisach i ręczne dopasowywanie offsetu i FPS
-zajmuje więcej czasu niż samo oglądanie.
+Szukanie napisów po&nbsp;kilku serwisach i&nbsp;ręczne dopasowywanie offsetu&nbsp;i FPS
+zajmuje więcej czasu niż&nbsp;samo oglądanie.
 
 ## Rozwiązanie
 
-Tauri v2 i React na interfejs, cała logika w Pythonie - UI da się
-przebudować bez ruszania rdzenia. Dopasowanie po hashu pliku, nie po
-zgadywaniu tytułu. Program sam wykrywa rozjazd FPS i liczy korektę; gdy
-nie trafi, wystarczy wskazać dwa punkty w podglądzie. Przed zapisem
-sprawdza czytelność napisów i w razie potrzeby wydłuża wyświetlanie.
+Tauri v2&nbsp;i React na&nbsp;interfejs, cała logika w&nbsp;Pythonie - UI da&nbsp;się
+przebudować bez&nbsp;ruszania rdzenia. Dopasowanie po&nbsp;hashu pliku, nie&nbsp;po
+zgadywaniu tytułu. Program sam wykrywa rozjazd FPS&nbsp;i liczy korektę; gdy&nbsp;nie
+trafi, wystarczy wskazać dwa punkty w&nbsp;podglądzie. Przed zapisem
+sprawdza czytelność napisów&nbsp;i w&nbsp;razie potrzeby wydłuża wyświetlanie.
 
 ## Efekt
 
-Napisy znalezione i zsynchronizowane w jednym kliknięciu. Rdzeń pokryty
-530 testami. Projekt w budowie, ~95% ukończony.
+Napisy znalezione&nbsp;i zsynchronizowane w&nbsp;jednym kliknięciu. Rdzeń pokryty
+530 testami. Projekt w&nbsp;budowie, ~95% ukończony.

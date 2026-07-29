@@ -11,5 +11,5 @@ tile: tall
 order: 3
 ---
 
-Strona gabinetu ortodontycznego w Mielcu - leczenie aparatami stałymi,
-ruchomymi i alignerami, z umawianiem wizyt online. Astro i Tailwind 4.
+Strona gabinetu ortodontycznego w&nbsp;Mielcu - leczenie aparatami stałymi,
+ruchomymi&nbsp;i alignerami, z&nbsp;umawianiem wizyt online. Astro&nbsp;i Tailwind 4.

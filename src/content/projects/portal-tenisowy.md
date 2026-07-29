@@ -14,15 +14,15 @@ order: 1
 
 ## Problem
 
-Klub prowadził rezerwacje i turnieje w arkuszu i przez telefon.
+Klub prowadził rezerwacje&nbsp;i turnieje w&nbsp;arkuszu i&nbsp;przez telefon.
 
 ## Rozwiązanie
 
-Django jako API, Astro jako osobny front. Pięć formatów turniejowych - od
-drabinki po system szwajcarski - i ranking na własnym silniku Elo, pokrytym
-testami. Działa jak PWA, z powiadomieniami push na telefon. Docker na VPS,
-wdrożenia przez GitHub Actions ze skryptem rollbacku.
+Django jako API, Astro jako osobny front. Pięć formatów turniejowych -&nbsp;od
+drabinki po&nbsp;system szwajcarski -&nbsp;i ranking na&nbsp;własnym silniku Elo, pokrytym
+testami. Działa jak PWA, z&nbsp;powiadomieniami push na&nbsp;telefon. Docker na&nbsp;VPS,
+wdrożenia przez GitHub Actions ze&nbsp;skryptem rollbacku.
 
 ## Efekt
 
-Klub sam prowadzi turnieje i wyniki, ranking przelicza się po każdym meczu.
+Klub sam prowadzi turnieje&nbsp;i wyniki, ranking przelicza się po&nbsp;każdym meczu.

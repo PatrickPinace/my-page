@@ -14,16 +14,16 @@ order: 5
 ## Problem
 
 Firma szkoleniowa potrzebowała strony, którą sama mogłaby aktualizować -
-zmiana ceny czy terminu kursu nie powinna wymagać dotykania kodu.
+zmiana ceny czy&nbsp;terminu kursu nie&nbsp;powinna wymagać dotykania kodu.
 
 ## Rozwiązanie
 
-Astro 5 i Tailwind 4, w pełni statycznie. Ceny, terminy i moduły kursów
-trzymane jako dane w YAML z walidacją schematu, oddzielone od wyglądu.
-Flagowy kurs ma sześć modułów w trzech pakietach cenowych, obok osobna
-ścieżka dla placówek. Redesign celowo poszedł w ciepłą paletę zamiast
+Astro 5&nbsp;i Tailwind 4, w&nbsp;pełni statycznie. Ceny, terminy&nbsp;i moduły kursów
+trzymane jako dane w&nbsp;YAML z&nbsp;walidacją schematu, oddzielone od&nbsp;wyglądu.
+Flagowy kurs ma sześć modułów w&nbsp;trzech pakietach cenowych, obok osobna
+ścieżka dla&nbsp;placówek. Redesign celowo poszedł w&nbsp;ciepłą paletę zamiast
 korporacyjnego wyglądu.
 
 ## Efekt
 
-Firma sama edytuje ceny i terminy, bez pomocy programisty.
+Firma sama edytuje ceny&nbsp;i terminy, bez&nbsp;pomocy programisty.
