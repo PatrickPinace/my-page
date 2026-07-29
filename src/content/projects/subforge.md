@@ -1,6 +1,6 @@
 ---
 title: SubForge
-summary: Desktopowa aplikacja do napisów - wyszukuje je w sześciu serwisach, dopasowuje czas i FPS do pliku wideo, sprawdza czytelność.
+summary: Desktopowa aplikacja do napisów - wyszukuje je w sześciu serwisach, dopasowuje czas i FPS do pliku wideo, sprawdza czytelność.
 stack: [Tauri v2, React, Python]
 role: [autor całości]
 repo: https://github.com/PatrickPinace/SubtitlesDownverter

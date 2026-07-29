@@ -1,6 +1,6 @@
 ---
 title: ortomielec
-summary: Strona lekarza dentysty - ortodoncja dzieci i dorosłych, umawianie wizyt online.
+summary: Strona lekarza dentysty - ortodoncja dzieci i dorosłych, umawianie wizyt online.
 stack: [Astro, Tailwind 4]
 role: [full-stack]
 url: https://ortomielec.pl

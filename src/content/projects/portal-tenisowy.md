@@ -1,6 +1,6 @@
 ---
 title: Portal tenisowy
-summary: Portal klubu tenisowego - Django na backendzie, Astro na froncie, wdrożony w Dockerze na VPS.
+summary: Portal klubu tenisowego - Django na backendzie, Astro na froncie, wdrożony w Dockerze na VPS.
 stack: [Django, Astro, Docker]
 role: [full-stack, devops]
 url: https://portal.raketon.pl

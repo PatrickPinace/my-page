@@ -1,6 +1,6 @@
 ---
 title: medi3
-summary: Poradnia okołoporodowa - położne, szkoła rodzenia, wizyty patronażowe. Projekt, wykonanie i wdrożenie.
+summary: Poradnia okołoporodowa - położne, szkoła rodzenia, wizyty patronażowe. Projekt, wykonanie i wdrożenie.
 stack: [Astro, Tailwind]
 role: [full-stack]
 url: https://medi3.pl
