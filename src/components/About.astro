@@ -7,16 +7,22 @@ import { url } from '../lib/paths';
   <div class="grid grid-cols-1 items-start gap-10 md:grid-cols-[1fr_340px] md:gap-16">
     <div id="o-mnie" class="reveal flex flex-col gap-5">
       <h2 class="text-[28px] md:text-[40px]">O mnie</h2>
+      {/* Twarde spacje (&nbsp;) między krótkimi spójnikami/przyimkami i
+          kolejnym słowem - typograficzna zasada, żeby "i", "w", "z", "po",
+          "ale" itp. nigdy nie zostawały samotne na końcu linii. Działa na
+          każdej szerokości ekranu, bo reszta tekstu nadal zawija się
+          swobodnie - usztywnione są tylko te konkretne pary słów. */}
       <p class="max-w-[58ch] text-lg leading-relaxed md:text-xl">
-        Michał Minor. Tworzę strony i aplikacje webowe od
-        pierwszej linijki kodu po działający serwer. Nie boję się też nowych wyzwań.
+        Michał Minor. Tworzę strony&nbsp;i aplikacje webowe. Od&nbsp;pomysłu,
+        przez kod, po&nbsp;działający serwer.
       </p>
       <p class="max-w-[62ch] text-[17px] leading-relaxed text-[var(--color-neutral-400)]">
-        Biorę projekty, w których trzeba tworzyć całość, a nie tylko
-        dowieźć widok, ale wymyślić, jak to ma działać, i utrzymać w ruchu.
+        Szukam projektów, w&nbsp;których odpowiadam za&nbsp;całość: nie tylko wygląd,
+        ale&nbsp;logikę, architekturę i&nbsp;utrzymanie w&nbsp;ruchu.
       </p>
       <p class="max-w-[62ch] text-[17px] leading-relaxed text-[var(--color-neutral-400)]">
-        Gram, majsterkuję przy Linuksie i lokalnych modelach AI.
+        Poza kodowaniem? Majsterkuję przy&nbsp;Linuksie, eksperymentuję z&nbsp;lokalnymi
+        modelami AI i&nbsp;projektuję własne rozwiązania.
       </p>
     </div>
 
