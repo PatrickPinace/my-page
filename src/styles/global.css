@@ -230,33 +230,38 @@ html {
    screena leżą jeden na drugim i przenikają się automatycznie — który jest
    na wierzchu, decyduje skrypt w ProjectsGrid, niezależnie od motywu.
    Bez JS-a widoczny zostaje wariant ciemny (pierwszy w DOM). */
-.shot {
+/* Uwaga: te reguły MUSZĄ być zawężone do .shot-pair (kontener kafla).
+   Wcześniej celowały w samo .shot i wyciekały do karuzeli na podstronie
+   projektu, gdzie przełącza display, a nie opacity — jasny slajd dostawał
+   tam display:block i opacity:0 naraz, czyli pusty prostokąt zamiast
+   zdjęcia. */
+.shot-pair .shot {
   position: absolute;
   inset: 0;
   transition: opacity 0.9s ease;
 }
-.shot-light {
+.shot-pair .shot-light {
   opacity: 0;
 }
-.shot-dark {
+.shot-pair .shot-dark {
   opacity: 1;
 }
-.shot-swap .shot-light {
+.shot-pair.shot-swap .shot-light {
   opacity: 1;
 }
-.shot-swap .shot-dark {
+.shot-pair.shot-swap .shot-dark {
   opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
   /* Bez animowanego przełączania — zostaje sam wariant ciemny. */
-  .shot {
+  .shot-pair .shot {
     transition: none;
   }
-  .shot-swap .shot-light {
+  .shot-pair.shot-swap .shot-light {
     opacity: 0;
   }
-  .shot-swap .shot-dark {
+  .shot-pair.shot-swap .shot-dark {
     opacity: 1;
   }
 }

@@ -18,19 +18,11 @@ Klub prowadził rezerwacje i turnieje w arkuszu i przez telefon.
 
 ## Rozwiązanie
 
-Django jako panel i API, Astro jako front — nie SSR w Django, tylko osobny
-frontend konsumujący REST. System turniejów obsługuje pięć formatów
-rozgrywek (drabinka, Round Robin, Americano, system szwajcarski, pojedyncza
-i podwójna eliminacja), każdy z własną logiką generowania meczów. Ranking
-klubowy liczony jest własnym silnikiem Elo — z karą za nieaktywność,
-remisami przy meczach bez zwycięzcy i walkowerem, który nie wpływa na punkty
-— pokrytym testami jednostkowymi weryfikującymi dokładność wyliczeń.
-Aplikacja działa jak PWA: instalowalna na telefonie, z prawdziwymi
-powiadomieniami push (Web Push API, klucze VAPID), nie tylko odznaczeniami
-w appce. Całość stoi w Dockerze na własnym VPS-ie, wdrażana przez GitHub
-Actions po SSH, z osobnym skryptem rollbacku na wypadek nieudanego wdrożenia.
+Django jako API, Astro jako osobny front. Pięć formatów turniejowych — od
+drabinki po system szwajcarski — i ranking na własnym silniku Elo, pokrytym
+testami. Działa jak PWA, z powiadomieniami push na telefon. Docker na VPS,
+wdrożenia przez GitHub Actions ze skryptem rollbacku.
 
 ## Efekt
 
-Klub sam dodaje turnieje i wyniki, ranking liczy się automatycznie po
-każdym meczu. Utrzymanie po mojej stronie.
+Klub sam prowadzi turnieje i wyniki, ranking przelicza się po każdym meczu.

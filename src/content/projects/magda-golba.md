@@ -18,16 +18,12 @@ rozrzuconej między social media i pojedynczym formularzem bez kontekstu.
 
 ## Rozwiązanie
 
-Astro i Tailwind, w pełni statyczna, wdrażana przez GitHub Actions.
-Formularz zapisów to świadomie prosty link do Google Forms zamiast własnego
-backendu — mniej ruchomych części do utrzymania przy stronie tej skali,
-umieszczony w trzech miejscach: hero, cenniku i sekcji kontaktowej. Opis
-oferty (wsparcie laktacyjne, wizyty patronażowe, noszenie w chustach, KTG)
-i opinie pacjentek osadzone bezpośrednio na stronie zamiast rozpraszać
-odwiedzającego linkami na zewnątrz.
+Astro i Tailwind, w pełni statycznie, wdrażane przez GitHub Actions.
+Zapisy idą przez Google Forms zamiast własnego backendu — przy tej skali
+mniej ruchomych części znaczy mniej rzeczy do zepsucia. Oferta i opinie
+pacjentek osadzone na stronie, bez odsyłania gdzie indziej.
 
 ## Efekt
 
-Jedna strona, do której można odesłać zamiast tłumaczyć telefonicznie, co
-i gdzie. Utrzymanie praktycznie zerowe — brak backendu, który mógłby się
-zepsuć.
+Jedno miejsce, do którego można odesłać zamiast tłumaczyć przez telefon.
+Utrzymanie praktycznie zerowe.

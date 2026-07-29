@@ -14,11 +14,6 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   <div class="grid grid-cols-1 gap-7 md:grid-cols-6 md:gap-6">
     {projects.map((project, i) => <ProjectCard project={project} index={i} />)}
   </div>
-
-  <p class="mt-5 max-w-[80ch] text-[13px] text-[var(--color-neutral-500)]">
-    Screeny leżą w kadrach o różnych proporcjach, nie w kartach z obwódką.
-    Każdy kadr przechodzi własnym rytmem (7–9 s) między wersją ciemną a jasną strony.
-  </p>
 </div>
 
 <script>
