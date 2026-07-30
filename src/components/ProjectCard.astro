@@ -45,7 +45,7 @@ const num = String(index + 1).padStart(2, '0');
       traciłyby brzegi. Resztę miejsca dopełnia tło kontenera, tak jak
       w karuzeli na podstronie projektu. */}
   <div
-    class="card-shots relative overflow-hidden rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] transition-shadow duration-200 group-hover:shadow-[var(--shadow-md)]"
+    class="card-shots relative overflow-hidden rounded-md shadow-sm transition-shadow duration-200 group-hover:shadow-md"
     style={`aspect-ratio: ${ratio}; background: var(--color-surface)`}
   >
     {shots.map((s, i) =>
@@ -87,7 +87,7 @@ const num = String(index + 1).padStart(2, '0');
     )}
 
     <div
-      class="absolute bottom-0 left-0 h-0.5 w-0 bg-[var(--color-accent)] transition-[width] duration-200 group-hover:w-full"
+      class="absolute bottom-0 left-0 h-0.5 w-0 bg-accent transition-[width] duration-200 group-hover:w-full"
     ></div>
 
     {/* Napisy w pastylkach z własnym, prawie pełnym tłem - gradient nad
@@ -96,16 +96,16 @@ const num = String(index + 1).padStart(2, '0');
     <div
       class="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-2 items-end justify-between gap-2 px-3 pb-3 font-mono text-xs opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100"
     >
-      <span class="card-pill text-[var(--color-ink-300)]">rola: {role.join(', ')}</span>
-      <span class="card-pill whitespace-nowrap text-[var(--color-accent-300)]">case study →</span>
+      <span class="card-pill text-ink-300">rola: {role.join(', ')}</span>
+      <span class="card-pill whitespace-nowrap text-accent-300">case study →</span>
     </div>
   </div>
 
   <div class="flex gap-3.5">
-    <span class="pt-1 font-mono text-xs text-[var(--color-ink-600)] transition-colors group-hover:text-[var(--color-accent-400)]">{num}</span>
+    <span class="pt-1 font-mono text-xs text-ink-600 transition-colors group-hover:text-accent-400">{num}</span>
     <div class="flex flex-col gap-1.5">
-      <h3 class:list={['transition-colors group-hover:text-[var(--color-accent-200)]', tile === 'wide' ? 'text-xl' : 'text-base']}>{title}</h3>
-      <p class:list={['max-w-[46ch] text-[var(--color-ink-400)] transition-colors group-hover:text-[var(--color-ink-300)]', tile === 'wide' ? 'text-[15px]' : 'text-sm']}>
+      <h3 class:list={['transition-colors group-hover:text-accent-200', tile === 'wide' ? 'text-xl' : 'text-base']}>{title}</h3>
+      <p class:list={['max-w-[46ch] text-ink-400 transition-colors group-hover:text-ink-300', tile === 'wide' ? 'text-[15px]' : 'text-sm']}>
         {summary}
       </p>
       {tile === 'wide' && (
