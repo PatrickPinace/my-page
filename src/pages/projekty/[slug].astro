@@ -59,7 +59,7 @@ const shots = shotDefs.map((s) => {
   <div class="mx-auto max-w-[1120px]">
     <div class="px-6 pb-16 md:px-14">
       <div class="mb-3 font-mono text-xs text-[var(--color-ink-600)]">
-        <a href={path("/#projekty")} class="text-[var(--color-ink-600)] no-underline hover:text-[var(--color-accent-300)]">← projekty</a>
+        <a href={path("/#projekty")} class="text-[var(--color-ink-600)] no-underline transition-colors hover:text-[var(--color-accent-200)]">← projekty</a>
         · {num} / {String(total).padStart(2, '0')}
       </div>
 
@@ -81,8 +81,8 @@ const shots = shotDefs.map((s) => {
         </div>
         <div>
           <div class="mb-1 text-[var(--color-ink-500)]">Link</div>
-          {url && <a href={url} target="_blank" rel="noopener" class="text-[var(--color-accent-300)] no-underline">na żywo →</a>}
-          {repo && !url && <a href={repo} target="_blank" rel="noopener" class="text-[var(--color-accent-300)] no-underline">repo →</a>}
+          {url && <a href={url} target="_blank" rel="noopener" class="text-[var(--color-accent)] no-underline transition-colors hover:text-[var(--color-accent-200)]">na żywo →</a>}
+          {repo && !url && <a href={repo} target="_blank" rel="noopener" class="text-[var(--color-accent)] no-underline transition-colors hover:text-[var(--color-accent-200)]">repo →</a>}
         </div>
       </div>
 

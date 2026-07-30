@@ -22,6 +22,14 @@
   --color-ink-800: #2a2b3a;
   --color-ink-900: #1e1f2b;
 
+  /* Skala akcentu - kiedy czego użyć:
+     --color-accent      elementy klikalne w spoczynku (linki, nawigacja)
+     --color-accent-200  hover na czymkolwiek klikalnym (rozjaśnienie)
+     --color-accent-300  tekst dekoracyjny i etykiety, które NIE są linkami
+                         ("6 wdrożonych", "case study →", pastylka "w budowie"),
+                         oraz tło .btn-primary na hover
+     --color-accent-400  akcenty punktowe (kropka pulsująca, numer kafla na hover)
+     --color-accent-700  obramowania i wypełnienia o niskim kontraście */
   --color-accent: #9184d9;
   --color-accent-200: #cac4ee;
   --color-accent-300: #a7a1db;
@@ -119,7 +127,7 @@
     color: var(--color-accent);
   }
   a:hover {
-    color: var(--color-accent-300);
+    color: var(--color-accent-200);
   }
 }
 
