@@ -89,14 +89,39 @@
   color-scheme: dark;
 }
 
+/* Re-eksport tokenów do Tailwinda, żeby dało się pisać krótkie klasy
+   (text-accent, bg-surface, text-ink-400) zamiast text-[var(--color-accent)].
+   `inline` znaczy, że Tailwind wstawia var(...), a nie zapiekaną wartość -
+   dzięki temu klasy nadal reagują na zmianę motywu przez [data-theme].
+   Uwaga: nazwy nie mogą kolidować z wbudowaną paletą Tailwinda (dlatego
+   ink-*, nie neutral-*). */
 @theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);
   --color-text: var(--color-text);
+
+  --color-ink-300: var(--color-ink-300);
+  --color-ink-400: var(--color-ink-400);
+  --color-ink-500: var(--color-ink-500);
+  --color-ink-600: var(--color-ink-600);
+  --color-ink-800: var(--color-ink-800);
+  --color-ink-900: var(--color-ink-900);
+
   --color-accent: var(--color-accent);
+  --color-accent-200: var(--color-accent-200);
+  --color-accent-300: var(--color-accent-300);
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-700: var(--color-accent-700);
+
   --font-heading: var(--font-heading);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
 }
 
 /* @layer base: reset musi ustępować utility klasom Tailwinda (text-[...] itp.)
