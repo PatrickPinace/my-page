@@ -1,3 +1,18 @@
+/* ===========================================================================
+   Spis sekcji:
+     1. Importy
+     2. Tokeny motywów (Nocturne / Ruda) + re-eksport do Tailwinda
+     3. Reset (@layer base)
+     4. Komponenty współdzielone (.btn, .tag, hr)
+     5. Topbar (.site-header, .theme-toggle)
+     6. Kafle projektów (.card-shot, .shot-pair, .card-pill)
+     7. Karuzela na podstronie projektu (.shot-gallery i spółka)
+     8. Animacje i reveal
+     9. prefers-reduced-motion (zbiorczo)
+   =========================================================================== */
+
+/* --- 1. Importy ---------------------------------------------------------- */
+
 @import "tailwindcss";
 
 @import "@fontsource/space-grotesk/500.css";
@@ -8,12 +23,18 @@
 @import "@fontsource/ibm-plex-sans/500.css";
 @import "@fontsource/ibm-plex-sans/600.css";
 
+/* --- 2. Tokeny motywów --------------------------------------------------- */
+
 :root {
-  /* Nocturne - motyw domyślny. Kolejny motyw (Ruda) nadpisze --color-accent-*
-     i --color-bg-* przez [data-theme="ruda"] bez zmian w komponentach. */
+  /* Nocturne - motyw domyślny. Ruda nadpisuje niżej same tokeny, przez
+     [data-theme="ruda"], bez żadnych zmian w komponentach. */
   --color-bg: #0e0f17;
   --color-surface: #1b1d29;
 
+  /* ink-* to skala tekstu/obramowań, od najjaśniejszej do najciemniejszej.
+     NIE nazywać jej neutral-* - taką paletę ma wbudowaną Tailwind v4 i nazwy
+     by się zderzyły (ta sama zmienna definiowana dwa razy, wygrywa losowo ta
+     później w kaskadzie). */
   --color-text: #f2f1f6;
   --color-ink-300: #c9c7d6;
   --color-ink-400: #a6a3b8;
@@ -92,9 +113,7 @@
 /* Re-eksport tokenów do Tailwinda, żeby dało się pisać krótkie klasy
    (text-accent, bg-surface, text-ink-400) zamiast text-[var(--color-accent)].
    `inline` znaczy, że Tailwind wstawia var(...), a nie zapiekaną wartość -
-   dzięki temu klasy nadal reagują na zmianę motywu przez [data-theme].
-   Uwaga: nazwy nie mogą kolidować z wbudowaną paletą Tailwinda (dlatego
-   ink-*, nie neutral-*). */
+   dzięki temu klasy nadal reagują na zmianę motywu przez [data-theme]. */
 @theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);
@@ -124,6 +143,8 @@
   --shadow-md: var(--shadow-md);
 }
 
+/* --- 3. Reset ------------------------------------------------------------ */
+
 /* @layer base: reset musi ustępować utility klasom Tailwinda (text-[...] itp.)
    zgodnie z zamierzoną kolejnością warstw base < components < utilities.
    Poza warstwą te same reguły wygrywałyby zawsze, niezależnie od
@@ -132,6 +153,9 @@
 @layer base {
   html {
     color-scheme: dark;
+    /* Kotwice muszą uwzględnić wysokość przyklejonego paska, inaczej nagłówek
+       sekcji chowa się pod nim po kliknięciu w link nawigacji. */
+    scroll-padding-top: 76px;
   }
 
   body {
@@ -155,6 +179,8 @@
     color: var(--color-accent-200);
   }
 }
+
+/* --- 4. Komponenty współdzielone ---------------------------------------- */
 
 hr.hr {
   border: none;
@@ -206,11 +232,14 @@ hr.hr {
   color: var(--color-ink-300);
 }
 
+/* Kafel pod kursorem podświetla swoje tagi stacku. */
 .group:hover .card-tags .tag-outline {
   border-color: var(--color-accent-700);
   color: var(--color-accent-200);
   background: rgb(var(--accent-rgb) / 0.1);
 }
+
+/* --- 5. Topbar ---------------------------------------------------------- */
 
 /* Pasek nawigacji przyklejony do góry. Tło półprzezroczyste z rozmyciem,
    żeby treść przewijająca się pod spodem nie prześwitywała ostro.
@@ -233,9 +262,16 @@ hr.hr {
   border-bottom-color: var(--color-ink-800);
 }
 
+/* Przeglądarki bez backdrop-filter dostają pełne tło zamiast prześwitu. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--color-bg);
+  }
+}
+
 /* Pastylki: nośnik kontrastu, niezależny od tego, co leży pod paskiem.
-   Przełącznik motywu jest teraz małą okrągłą plakietką (sam swatch, bez
-   tekstu), więc dostaje własne tło zamiast wspólnego z linkami paddingu. */
+   Ciaśniejszy padding na wąskich ekranach, żeby cała nawigacja zmieściła się
+   bez przewijania w bok (sprawdzone do 320px). */
 .site-header a {
   padding: 0.3rem 0.5rem;
   border-radius: 999px;
@@ -250,6 +286,9 @@ hr.hr {
 .site-header a:hover {
   background: rgb(var(--bg-rgb) / 0.98);
 }
+
+/* Przełącznik motywu to mała okrągła plakietka (sam swatch, bez tekstu),
+   więc dostaje własne tło zamiast paddingu wspólnego z linkami. */
 .site-header .theme-toggle {
   background: rgb(var(--bg-rgb) / 0.92);
 }
@@ -257,23 +296,45 @@ hr.hr {
   background: rgb(var(--bg-rgb) / 0.98);
 }
 
-/* Przeglądarki bez backdrop-filter dostają pełne tło zamiast prześwitu. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .site-header {
-    background: var(--color-bg);
-  }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--color-ink-800);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.theme-toggle:hover {
+  border-color: var(--color-accent-700);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+/* Kreska obraca się razem z motywem: pionowa w Nocturne, pozioma w Rudej -
+   sam kształt niesie informację, który motyw jest aktywny, bez etykiety. */
+.theme-toggle .swatch {
+  width: 3px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  transition: width 0.2s ease, height 0.2s ease;
+}
+[data-theme="ruda"] .theme-toggle .swatch {
+  width: 14px;
+  height: 3px;
 }
 
-/* Kotwice muszą uwzględnić wysokość przyklejonego paska, inaczej nagłówek
-   sekcji chowa się pod nim po kliknięciu w link nawigacji. */
-html {
-  scroll-padding-top: 76px;
-}
+/* --- 6. Kafle projektów ------------------------------------------------- */
 
-/* Kafelki siatki projektów: wszystkie klatki galerii projektu leżą jedna na
-   drugiej i przenikają się w czasie (skrypt w ProjectsGrid przestawia
-   .is-active co 7-9 s, każdy kafel własnym rytmem). Bez JS-a widoczna zostaje
-   pierwsza klatka. */
+/* Wszystkie klatki galerii projektu leżą jedna na drugiej i przenikają się
+   w czasie (skrypt w ProjectsGrid przestawia .is-active co 5-11 s, każdy kafel
+   własnym rytmem). Bez JS-a widoczna zostaje pierwsza klatka. */
 .card-shot {
   opacity: 0;
   transition: opacity 0.9s ease;
@@ -282,19 +343,14 @@ html {
 .card-shot.is-active {
   opacity: 1;
 }
-@media (prefers-reduced-motion: reduce) {
-  /* Bez przenikania - zostaje sama pierwsza klatka. */
-  .card-shot {
-    transition: none;
-  }
-}
 
 /* Klatka z jasnym zrzutem: dwa warianty (przyciemnione pod Nocturne / pod
    Ruda) tego samego zdjęcia leżą jeden na drugim - który jest na wierzchu,
    decyduje aktywny motyw strony (klasa .shot-swap ustawiana w ProjectsGrid
    przy starcie i przy zmianie motywu), nie upływ czasu. Bez JS-a widoczny
-   zostaje wariant pod Nocturne (domyślny motyw, pierwszy w DOM). */
-/* Uwaga: te reguły MUSZĄ być zawężone do .shot-pair (kontener kafla).
+   zostaje wariant pod Nocturne (domyślny motyw, pierwszy w DOM).
+
+   Uwaga: te reguły MUSZĄ być zawężone do .shot-pair (kontener kafla).
    Wcześniej celowały w samo .shot i wyciekały do karuzeli na podstronie
    projektu, gdzie przełącza display, a nie opacity - jasny slajd dostawał
    tam display:block i opacity:0 naraz, czyli pusty prostokąt zamiast
@@ -317,16 +373,22 @@ html {
   opacity: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .shot-pair .shot {
-    transition: none;
-  }
+/* Pastylki na wysuwanym pasku kafla ("rola" / "case study"). Tło musi tu
+   siedzieć w regule CSS, nie w atrybucie style - składnia rgb(var() / a)
+   podstawiana inline nie przechodzi przez parser. Krycie 0.92 sprawia, że
+   napis jest czytelny także na jasnych zrzutach, gdzie sam gradient nad
+   obrazkiem nie dawał rady. */
+.card-pill {
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  background: rgb(var(--card-veil) / 0.92);
 }
 
-/* Karuzela na podstronie projektu: zdjęcia w pełni widoczne (object-contain),
-   więc nie mogą się nakładać przez position:absolute jak na kafelkach -
-   psułoby to wysokość kontenera. Przełącza je display, sterowane klasą
-   .is-active ze skryptu w [slug].astro. */
+/* --- 7. Karuzela na podstronie projektu --------------------------------- */
+
+/* Zdjęcia w pełni widoczne (object-contain), więc nie mogą się nakładać przez
+   position:absolute jak na kafelkach - psułoby to wysokość kontenera.
+   Przełącza je display, sterowane klasą .is-active ze skryptu w [slug].astro. */
 .shot-gallery .shot {
   position: static;
   display: none;
@@ -362,11 +424,6 @@ html {
 .shot-frame {
   transition: aspect-ratio 0.4s ease;
 }
-@media (prefers-reduced-motion: reduce) {
-  .shot-frame {
-    transition: none;
-  }
-}
 
 .shot-arrow {
   position: absolute;
@@ -390,23 +447,13 @@ html {
   background: rgb(var(--card-veil) / 0.8);
   border-color: var(--color-accent-700);
 }
-
-/* Pastylki na wysuwanym pasku kafla ("rola" / "case study"). Tło musi tu
-   siedzieć w regule CSS, nie w atrybucie style - składnia rgb(var() / a)
-   podstawiana inline nie przechodzi przez parser. Krycie 0.92 sprawia, że
-   napis jest czytelny także na jasnych zrzutach, gdzie sam gradient nad
-   obrazkiem nie dawał rady. */
-.card-pill {
-  border-radius: 999px;
-  padding: 0.25rem 0.625rem;
-  background: rgb(var(--card-veil) / 0.92);
-}
 .shot-arrow-prev {
   left: 14px;
 }
 .shot-arrow-next {
   right: 14px;
 }
+
 /* Jedna klatka - nic do przełączania, strzałki i sterowanie znikają. */
 .shot-gallery.has-single .shot-arrow,
 .shot-gallery.has-single .shot-controls {
@@ -453,6 +500,8 @@ html {
   align-items: center;
   gap: 7px;
 }
+/* Kropki muszą kontrastować z paskiem kontrolek, żeby było widać ile zdjęć
+   jest w galerii - stąd ink-600, nie kolor tła (wcześniej zlewały się z nim). */
 .shot-dot {
   height: 7px;
   width: 7px;
@@ -471,51 +520,7 @@ html {
   background: var(--color-accent);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .shot-arrow,
-  .shot-dot {
-    transition: none;
-  }
-}
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 1px solid var(--color-ink-800);
-  border-radius: 999px;
-  background: transparent;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-.theme-toggle:hover {
-  border-color: var(--color-accent-700);
-}
-.theme-toggle:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-/* Kreska obraca się razem z motywem: pionowa w Nocturne, pozioma w Rudej -
-   sam kształt niesie informację, który motyw jest aktywny, bez etykiety. */
-.theme-toggle .swatch {
-  width: 3px;
-  height: 14px;
-  border-radius: 999px;
-  background: var(--color-accent);
-  transition: width 0.2s ease, height 0.2s ease;
-}
-[data-theme="ruda"] .theme-toggle .swatch {
-  width: 14px;
-  height: 3px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .theme-toggle .swatch {
-    transition: none;
-  }
-}
+/* --- 8. Animacje i reveal ---------------------------------------------- */
 
 @keyframes nx-pulse {
   0%, 100% { opacity: 0.35; }
@@ -527,6 +532,8 @@ html {
   to { opacity: 1; transform: none; }
 }
 
+/* Wjazd sekcji przy scrollu. Klasę .is-visible przestawia IntersectionObserver
+   w Base.astro - w obie strony, więc efekt powtarza się przy każdym przejściu. */
 .reveal {
   opacity: 0;
   transform: translateY(14px);
@@ -537,6 +544,12 @@ html {
   transform: none;
 }
 
+/* --- 9. prefers-reduced-motion ----------------------------------------- */
+
+/* Zbiorczo dla całej strony - wcześniej to samo powtarzało się w pięciu
+   miejscach przy poszczególnych komponentach. Reguła z !important wyłącza
+   wszystkie animacje i przejścia; poniżej tylko to, co musi dodatkowo dostać
+   stan końcowy, bo bez przejścia zostałoby niewidoczne albo w złym kształcie. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation: none !important;
