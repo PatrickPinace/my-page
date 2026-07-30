@@ -426,9 +426,12 @@ html {
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: rgb(var(--bg-rgb) / 0.4);
+  background: var(--color-neutral-600);
   cursor: pointer;
   transition: background-color 0.15s, width 0.15s;
+}
+.shot-dot:hover {
+  background: var(--color-neutral-400);
 }
 .shot-dot.is-active {
   width: 16px;
