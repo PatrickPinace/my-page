@@ -17,9 +17,15 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 </div>
 
 <script>
-  // Kafle z jasnym reprezentatywnym zdjęciem mają dwie warstwy nałożone na
-  // siebie (przyciemnione pod Nocturne i pod Ruda) - która jest na wierzchu,
-  // decyduje wyłącznie aktywny motyw strony, nie upływ czasu.
+  // Dwie niezależne rzeczy dzieją się na kaflach:
+  //
+  // 1. Klatki galerii projektu przewijają się w czasie (7–9 s), każdy kafel
+  //    własnym rytmem, żeby siatka nie mrugała zbiorczo. Ruch pauzuje, gdy
+  //    kafel jest poza ekranem albo pod kursorem - wtedy screen ma stać.
+  // 2. Klatki z jasnym zrzutem mają dwie warstwy (przyciemnione pod Nocturne
+  //    i pod Ruda) - która jest na wierzchu, decyduje aktywny motyw strony,
+  //    nie upływ czasu.
+
   const applyTheme = () => {
     const isRuda = document.documentElement.dataset.theme === 'ruda';
     document.querySelectorAll<HTMLElement>('.shot-pair').forEach((el) => {
@@ -29,4 +35,55 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 
   applyTheme();
   document.addEventListener('theme-change', applyTheme);
+
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('.card-shots'));
+  const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (cards.length && motionOK) {
+    const timers = new WeakMap<HTMLElement, number>();
+    const indexes = new WeakMap<HTMLElement, number>();
+    const delay = () => 7000 + Math.random() * 2000;
+
+    const tick = (card: HTMLElement) => {
+      const frames = Array.from(card.querySelectorAll<HTMLElement>('.card-shot'));
+      if (!card.dataset.paused && frames.length > 1) {
+        const next = ((indexes.get(card) ?? 0) + 1) % frames.length;
+        indexes.set(card, next);
+        frames.forEach((el, n) => el.classList.toggle('is-active', n === next));
+      }
+      timers.set(card, window.setTimeout(() => tick(card), delay()));
+    };
+
+    const stop = (card: HTMLElement) => {
+      const id = timers.get(card);
+      if (id) window.clearTimeout(id);
+      timers.delete(card);
+    };
+
+    // Rusza dopiero, gdy kafel wjedzie w widok - i zatrzymuje się po wyjeździe.
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const card = e.target as HTMLElement;
+          if (e.isIntersecting) {
+            if (!timers.has(card)) {
+              // losowy odstęp startowy rozjeżdża kafle względem siebie
+              timers.set(card, window.setTimeout(() => tick(card), Math.random() * 4000));
+            }
+          } else {
+            stop(card);
+          }
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    for (const card of cards) {
+      if (card.querySelectorAll('.card-shot').length < 2) continue;
+      io.observe(card);
+      const link = card.closest('a') ?? card;
+      link.addEventListener('mouseenter', () => (card.dataset.paused = '1'));
+      link.addEventListener('mouseleave', () => delete card.dataset.paused);
+    }
+  }
 </script>
