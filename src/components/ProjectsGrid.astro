@@ -19,7 +19,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 <script>
   // Dwie niezależne rzeczy dzieją się na kaflach:
   //
-  // 1. Klatki galerii projektu przewijają się w czasie (7–9 s), każdy kafel
+  // 1. Klatki galerii projektu przewijają się w czasie (5–11 s), każdy kafel
   //    własnym rytmem, żeby siatka nie mrugała zbiorczo. Ruch pauzuje, gdy
   //    kafel jest poza ekranem albo pod kursorem - wtedy screen ma stać.
   // 2. Klatki z jasnym zrzutem mają dwie warstwy (przyciemnione pod Nocturne
@@ -42,7 +42,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   if (cards.length && motionOK) {
     const timers = new WeakMap<HTMLElement, number>();
     const indexes = new WeakMap<HTMLElement, number>();
-    const delay = () => 7000 + Math.random() * 2000;
+    const delay = () => 5000 + Math.random() * 6000;
 
     const tick = (card: HTMLElement) => {
       const frames = Array.from(card.querySelectorAll<HTMLElement>('.card-shot'));

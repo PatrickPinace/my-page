@@ -200,15 +200,26 @@ hr.hr {
   border-bottom-color: var(--color-neutral-800);
 }
 
-/* Pastylki: nośnik kontrastu, niezależny od tego, co leży pod paskiem. */
-.site-header a,
-.site-header .theme-toggle {
-  padding: 0.3rem 0.7rem;
+/* Pastylki: nośnik kontrastu, niezależny od tego, co leży pod paskiem.
+   Przełącznik motywu jest teraz małą okrągłą plakietką (sam swatch, bez
+   tekstu), więc dostaje własne tło zamiast wspólnego z linkami paddingu. */
+.site-header a {
+  padding: 0.3rem 0.5rem;
   border-radius: 999px;
   background: rgb(var(--bg-rgb) / 0.92);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
-.site-header a:hover,
+@media (min-width: 640px) {
+  .site-header a {
+    padding: 0.3rem 0.7rem;
+  }
+}
+.site-header a:hover {
+  background: rgb(var(--bg-rgb) / 0.98);
+}
+.site-header .theme-toggle {
+  background: rgb(var(--bg-rgb) / 0.92);
+}
 .site-header .theme-toggle:hover {
   background: rgb(var(--bg-rgb) / 0.98);
 }
@@ -434,21 +445,18 @@ html {
 .theme-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
   border: 1px solid var(--color-neutral-800);
   border-radius: 999px;
   background: transparent;
-  color: var(--color-neutral-400);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s;
 }
 .theme-toggle:hover {
   border-color: var(--color-accent-700);
-  color: var(--color-accent-200);
 }
 .theme-toggle:focus-visible {
   outline: 2px solid var(--color-accent);
@@ -459,19 +467,6 @@ html {
   height: 9px;
   border-radius: 999px;
   background: var(--color-accent);
-}
-/* Etykieta zapowiada motyw, na który przełączy kliknięcie. */
-.theme-toggle .label-to-ruda {
-  display: inline;
-}
-.theme-toggle .label-to-nocturne {
-  display: none;
-}
-[data-theme="ruda"] .theme-toggle .label-to-ruda {
-  display: none;
-}
-[data-theme="ruda"] .theme-toggle .label-to-nocturne {
-  display: inline;
 }
 
 @keyframes nx-pulse {
