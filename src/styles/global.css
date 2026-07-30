@@ -472,11 +472,23 @@ html {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+/* Kreska obraca się razem z motywem: pionowa w Nocturne, pozioma w Rudej -
+   sam kształt niesie informację, który motyw jest aktywny, bez etykiety. */
 .theme-toggle .swatch {
   width: 3px;
   height: 14px;
   border-radius: 999px;
   background: var(--color-accent);
+  transition: width 0.2s ease, height 0.2s ease;
+}
+[data-theme="ruda"] .theme-toggle .swatch {
+  width: 14px;
+  height: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle .swatch {
+    transition: none;
+  }
 }
 
 @keyframes nx-pulse {
