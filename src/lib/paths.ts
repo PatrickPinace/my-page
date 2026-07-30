@@ -10,5 +10,5 @@ export function url(path: string): string {
   // żeby nie wyszło "//screens" ani "my-pagescreens"
   const base = BASE.endsWith('/') ? BASE.slice(0, -1) : BASE;
   const rest = path.startsWith('/') ? path : `/${path}`;
-  return `${base}${rest}` || '/';
+  return `${base}${rest}`;
 }

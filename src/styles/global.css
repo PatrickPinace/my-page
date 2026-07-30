@@ -73,10 +73,9 @@
      (tło wychodzi wtedy przezroczyste, bez żadnego błędu w konsoli). */
   /* rgb() akcentu - do tła chipów, gdzie potrzebna przezroczystość */
   --accent-rgb: 145 132 217;
-  /* rgb() tła - do półprzezroczystego paska nawigacji */
+  /* rgb() tła - do półprzezroczystego paska nawigacji, pastylek na kaflach
+     i tła gradientu pod meta-info na karcie projektu */
   --bg-rgb: 14 15 23;
-  /* tło gradientu pod meta-info na karcie projektu */
-  --card-veil: 14 15 23;
   /* kolor tekstu na wypełnieniu akcentem (przycisk główny) */
   --on-accent: #12111a;
 }
@@ -104,7 +103,6 @@
   /* spacje, nie przecinki - patrz komentarz przy motywie Nocturne */
   --accent-rgb: 224 138 75;
   --bg-rgb: 20 18 15;
-  --card-veil: 20 18 15;
   --on-accent: #17120d;
 
   color-scheme: dark;
@@ -381,7 +379,7 @@ hr.hr {
 .card-pill {
   border-radius: 999px;
   padding: 0.25rem 0.625rem;
-  background: rgb(var(--card-veil) / 0.92);
+  background: rgb(var(--bg-rgb) / 0.92);
 }
 
 /* --- 7. Karuzela na podstronie projektu --------------------------------- */
@@ -436,7 +434,7 @@ hr.hr {
   justify-content: center;
   border-radius: 999px;
   border: 1px solid rgb(var(--bg-rgb) / 0.15);
-  background: rgb(var(--card-veil) / 0.55);
+  background: rgb(var(--bg-rgb) / 0.55);
   color: var(--color-text);
   font-size: 20px;
   line-height: 1;
@@ -444,7 +442,7 @@ hr.hr {
   transition: background-color 0.15s, border-color 0.15s;
 }
 .shot-arrow:hover {
-  background: rgb(var(--card-veil) / 0.8);
+  background: rgb(var(--bg-rgb) / 0.8);
   border-color: var(--color-accent-700);
 }
 .shot-arrow-prev {
