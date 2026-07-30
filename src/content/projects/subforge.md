@@ -5,8 +5,18 @@ stack: [Tauri v2, React, Python]
 role: [autor całości]
 repo: https://github.com/PatrickPinace/SubtitlesDownverter
 hosting: aplikacja desktopowa
-screenshot: subforge
 screenshotAlt: SubForge - formularz i log na żywo
+shots:
+  - base: subforge-dark
+    kind: dark
+  - base: subforge-dark-2
+    kind: dark
+  - base: subforge-dark-3
+    kind: dark
+  - base: subforge-light
+    kind: light
+  - base: subforge-light-2
+    kind: light
 tile: wide
 featured: true
 inProgress: true

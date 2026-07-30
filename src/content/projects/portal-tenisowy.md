@@ -5,8 +5,18 @@ stack: [Django, Astro, Docker]
 role: [full-stack, devops]
 url: https://portal.raketon.pl
 hosting: własny VPS
-screenshot: portal-tenisowy
 screenshotAlt: Portal klubu tenisowego - kalendarz i wyniki
+shots:
+  - base: portal-tenisowy-dark
+    kind: dark
+  - base: portal-tenisowy-dark-2
+    kind: dark
+  - base: portal-tenisowy-dark-3
+    kind: dark
+  - base: portal-tenisowy-dark-4
+    kind: dark
+  - base: portal-tenisowy-light
+    kind: light
 tile: wide
 featured: true
 order: 1

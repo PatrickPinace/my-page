@@ -21,24 +21,36 @@ export async function getStaticPaths() {
 }
 
 const { project, prev, next } = Astro.props;
-const { title, summary, stack, role, url, repo, hosting, screenshot, screenshotAlt, order, extraShots } = project.data;
+const { title, summary, stack, role, url, repo, hosting, screenshotAlt, order, shots: shotDefs } = project.data;
 const total = (await getCollection('projects')).length;
 const num = String(order).padStart(2, '0');
 const { Content } = await render(project);
 
-// Karuzela: wersja ciemna i jasna zawsze, plus ewentualne dodatkowe zdjęcia.
+// Karuzela: tyle klatek ile projekt ma shots w frontmatterze. Klatka 'dark'
+// ma jeden plik (wspólny dla obu motywów strony); klatka 'light' niesie dwa
+// pliki (przyciemnione osobno pod Nocturne i pod Ruda) - w danej chwili widać
+// tylko jeden z nich, zależnie od aktywnego data-theme, przełącza to skrypt
+// niżej, tak samo jak na kaflach strony głównej. Liczba/kolejność klatek się
+// nie zmienia przy przełączeniu motywu.
 // Wymiary czytane bezpośrednio z plików w public/screens/ (nie z URL-a -
 // path() dokleja base, a plik na dysku leży pod korzeniem projektu).
 const screensDir = fileURLToPath(new URL('../../../public/screens/', import.meta.url));
 
-const shots = [
-  { file: `${screenshot}-dark.webp`, src: path(`/screens/${screenshot}-dark.webp`), alt: screenshotAlt, variant: 'dark' },
-  { file: `${screenshot}-light.webp`, src: path(`/screens/${screenshot}-light.webp`), alt: screenshotAlt, variant: 'light' },
-  ...extraShots.map((s) => ({ file: null, src: path(s.src), alt: s.alt, variant: 'extra' })),
-].map((s) => {
-  if (!s.file) return { ...s, width: 1600, height: 900 }; // rozsądny domyślny - extraShots poza public/screens/
-  const { width, height } = webpSize(screensDir + s.file);
-  return { ...s, width, height };
+const shots = shotDefs.map((s) => {
+  if (s.kind === 'dark') {
+    const file = `${s.base}.webp`;
+    const { width, height } = webpSize(screensDir + file);
+    return { kind: 'dark' as const, src: path(`/screens/${file}`), width, height };
+  }
+  const fileNocturne = `${s.base}-nocturne.webp`;
+  const { width, height } = webpSize(screensDir + fileNocturne);
+  return {
+    kind: 'light' as const,
+    srcNocturne: path(`/screens/${fileNocturne}`),
+    srcRuda: path(`/screens/${s.base}-ruda.webp`),
+    width,
+    height,
+  };
 });
 ---
 
@@ -88,15 +100,35 @@ const shots = [
           style={`aspect-ratio: ${shots[0].width} / ${shots[0].height}; background: var(--color-surface)`}
           data-ratios={JSON.stringify(shots.map((s) => `${s.width} / ${s.height}`))}
         >
-          {shots.map((s, i) => (
-            <img
-              src={s.src}
-              alt={s.alt}
-              width={s.width}
-              height={s.height}
-              class:list={['shot', `shot-${s.variant}`, 'block h-full w-full object-contain', i === 0 && 'is-active']}
-            />
-          ))}
+          {shots.map((s, i) =>
+            s.kind === 'dark' ? (
+              <img
+                src={s.src}
+                alt={screenshotAlt}
+                width={s.width}
+                height={s.height}
+                class:list={['shot', 'block h-full w-full object-contain', i === 0 && 'is-active']}
+              />
+            ) : (
+              <span class:list={['shot shot-theme-pair', 'block h-full w-full', i === 0 && 'is-active']}>
+                <img
+                  src={s.srcNocturne}
+                  alt={screenshotAlt}
+                  width={s.width}
+                  height={s.height}
+                  class="shot-nocturne block h-full w-full object-contain"
+                />
+                <img
+                  src={s.srcRuda}
+                  alt=""
+                  aria-hidden="true"
+                  width={s.width}
+                  height={s.height}
+                  class="shot-ruda block h-full w-full object-contain"
+                />
+              </span>
+            )
+          )}
 
           <!-- Strzałki wycentrowane na wysokości zdjęcia, nie całej galerii -
                dlatego siedzą w .shot-frame, a nie bezpośrednio w .shot-gallery.
@@ -170,6 +202,15 @@ const shots = [
   // ekranem, żeby nie tykać w tle.
   const gallery = document.querySelector<HTMLElement>('.shot-gallery');
   const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Klatki z jasnym zrzutem niosą dwa pliki (przyciemnione pod każdy motyw) -
+  // która wersja jest widoczna, zależy wyłącznie od aktywnego data-theme, nie
+  // od autoplaya karuzeli.
+  const applyGalleryTheme = () => {
+    gallery?.classList.toggle('theme-ruda', document.documentElement.dataset.theme === 'ruda');
+  };
+  applyGalleryTheme();
+  document.addEventListener('theme-change', applyGalleryTheme);
 
   if (gallery) {
     const frame = gallery.querySelector<HTMLElement>('.shot-frame')!;

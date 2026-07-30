@@ -23,5 +23,8 @@
     } catch {
       /* tryb prywatny - motyw zadziała, po prostu się nie zapamięta */
     }
+    // Kafle projektów i karuzela na podstronach mają jasne warianty zdjęć
+    // przyciemnione osobno pod każdy motyw - muszą się dowiedzieć o zmianie.
+    document.dispatchEvent(new CustomEvent('theme-change', { detail: { theme: next } }));
   });
 </script>

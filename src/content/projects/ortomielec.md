@@ -5,8 +5,12 @@ stack: [Astro, Tailwind 4]
 role: [full-stack]
 url: https://ortomielec.pl
 hosting: hosting klienta
-screenshot: ortomielec
 screenshotAlt: ortomielec - strona gabinetu ortodontycznego
+shots:
+  - base: ortomielec-light
+    kind: light
+  - base: ortomielec-light-2
+    kind: light
 tile: tall
 order: 3
 ---

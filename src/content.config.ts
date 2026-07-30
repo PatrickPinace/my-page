@@ -13,13 +13,18 @@ const projects = defineCollection({
     /** Wyświetlane w karcie "Hosting" na podstronie, np. "własny VPS",
      *  "GitHub Pages", "aplikacja desktopowa". */
     hosting: z.string(),
-    /** Bazowa nazwa screena bez wariantu, np. "medi3".
-     *  Warianty żyją w /screens/{screenshot}-dark.webp i -light.webp. */
-    screenshot: z.string(),
     screenshotAlt: z.string(),
-    /** Dodatkowe zdjęcia do karuzeli na podstronie, poza dark/light.
-     *  Pełne ścieżki (z /screens/...), pokazywane po obu wariantach. */
-    extraShots: z.array(z.object({ src: z.string(), alt: z.string() })).default([]),
+    /** Klatki galerii (kafelek + karuzela na podstronie), w kolejności wyświetlania.
+     *  kind: 'dark' -> jeden plik /screens/{base}.webp, wspólny dla obu motywów strony
+     *  (prawdziwy zrzut ciemnego UI aplikacji).
+     *  kind: 'light' -> dwa pliki /screens/{base}-nocturne.webp i {base}-ruda.webp,
+     *  ten sam jasny zrzut przyciemniony pod aktywny motyw strony (data-theme). */
+    shots: z.array(
+      z.object({
+        base: z.string(),
+        kind: z.enum(['dark', 'light']),
+      })
+    ),
     tile: z.enum(['wide', 'tall', 'normal']),
     featured: z.boolean().default(false),
     inProgress: z.boolean().default(false),

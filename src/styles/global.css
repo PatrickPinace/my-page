@@ -226,10 +226,12 @@ html {
   scroll-padding-top: 76px;
 }
 
-/* Kafelki siatki projektów: dwa warianty (ciemny/jasny) tego samego
-   screena leżą jeden na drugim i przenikają się automatycznie - który jest
-   na wierzchu, decyduje skrypt w ProjectsGrid, niezależnie od motywu.
-   Bez JS-a widoczny zostaje wariant ciemny (pierwszy w DOM). */
+/* Kafelki siatki projektów z jasnym reprezentatywnym zdjęciem: dwa warianty
+   (przyciemnione pod Nocturne / pod Ruda) tego samego zrzutu leżą jeden na
+   drugim - który jest na wierzchu, decyduje aktywny motyw strony (klasa
+   .shot-swap ustawiana w ProjectsGrid przy starcie i przy zmianie motywu),
+   nie upływ czasu. Bez JS-a widoczny zostaje wariant pod Nocturne (domyślny
+   motyw, pierwszy w DOM). */
 /* Uwaga: te reguły MUSZĄ być zawężone do .shot-pair (kontener kafla).
    Wcześniej celowały w samo .shot i wyciekały do karuzeli na podstronie
    projektu, gdzie przełącza display, a nie opacity - jasny slajd dostawał
@@ -238,31 +240,24 @@ html {
 .shot-pair .shot {
   position: absolute;
   inset: 0;
-  transition: opacity 0.9s ease;
+  transition: opacity 0.4s ease;
 }
-.shot-pair .shot-light {
+.shot-pair .shot-ruda {
   opacity: 0;
 }
-.shot-pair .shot-dark {
+.shot-pair .shot-nocturne {
   opacity: 1;
 }
-.shot-pair.shot-swap .shot-light {
+.shot-pair.shot-swap .shot-ruda {
   opacity: 1;
 }
-.shot-pair.shot-swap .shot-dark {
+.shot-pair.shot-swap .shot-nocturne {
   opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Bez animowanego przełączania - zostaje sam wariant ciemny. */
   .shot-pair .shot {
     transition: none;
-  }
-  .shot-pair.shot-swap .shot-light {
-    opacity: 0;
-  }
-  .shot-pair.shot-swap .shot-dark {
-    opacity: 1;
   }
 }
 
@@ -275,6 +270,27 @@ html {
   display: none;
 }
 .shot-gallery .shot.is-active {
+  display: block;
+}
+
+/* Klatka karuzeli z jasnym zrzutem: dwa pliki (przyciemnione pod Nocturne /
+   pod Ruda) nałożone na siebie, tylko jeden wg aktywnego motywu ma display:
+   block - reszta pary (proporcje, is-active) działa tak samo jak zwykła
+   klatka, bo .shot-theme-pair sam też ma klasę .shot. */
+.shot-gallery .shot-theme-pair {
+  position: relative;
+}
+.shot-theme-pair .shot-nocturne,
+.shot-theme-pair .shot-ruda {
+  display: none;
+}
+.shot-theme-pair .shot-nocturne {
+  display: block;
+}
+.shot-gallery.theme-ruda .shot-theme-pair .shot-nocturne {
+  display: none;
+}
+.shot-gallery.theme-ruda .shot-theme-pair .shot-ruda {
   display: block;
 }
 

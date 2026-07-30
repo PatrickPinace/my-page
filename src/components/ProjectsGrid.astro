@@ -17,50 +17,16 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 </div>
 
 <script>
-  // Każdy kadr przełącza się własnym, niezależnym rytmem (7–9 s), żeby
-  // siatka nie mrugała zbiorczo. Ruch pauzuje, gdy sekcja jest poza
-  // ekranem albo karta jest pod kursorem - wtedy screen ma stać.
-  const pairs = Array.from(document.querySelectorAll<HTMLElement>('.shot-pair'));
-  const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Kafle z jasnym reprezentatywnym zdjęciem mają dwie warstwy nałożone na
+  // siebie (przyciemnione pod Nocturne i pod Ruda) - która jest na wierzchu,
+  // decyduje wyłącznie aktywny motyw strony, nie upływ czasu.
+  const applyTheme = () => {
+    const isRuda = document.documentElement.dataset.theme === 'ruda';
+    document.querySelectorAll<HTMLElement>('.shot-pair').forEach((el) => {
+      el.classList.toggle('shot-swap', isRuda);
+    });
+  };
 
-  if (pairs.length && motionOK) {
-    const timers = new WeakMap<HTMLElement, number>();
-    const delay = () => 7000 + Math.random() * 2000;
-
-    const tick = (el: HTMLElement) => {
-      if (!el.dataset.paused) el.classList.toggle('shot-swap');
-      timers.set(el, window.setTimeout(() => tick(el), delay()));
-    };
-
-    const stop = (el: HTMLElement) => {
-      const id = timers.get(el);
-      if (id) window.clearTimeout(id);
-      timers.delete(el);
-    };
-
-    // Rusza dopiero, gdy kadr wjedzie w widok - i zatrzymuje się po wyjeździe.
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          const el = e.target as HTMLElement;
-          if (e.isIntersecting) {
-            if (!timers.has(el)) {
-              // losowy odstęp startowy rozjeżdża kafle względem siebie
-              timers.set(el, window.setTimeout(() => tick(el), Math.random() * 4000));
-            }
-          } else {
-            stop(el);
-          }
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    for (const el of pairs) {
-      io.observe(el);
-      const card = el.closest('a') ?? el;
-      card.addEventListener('mouseenter', () => (el.dataset.paused = '1'));
-      card.addEventListener('mouseleave', () => delete el.dataset.paused);
-    }
-  }
+  applyTheme();
+  document.addEventListener('theme-change', applyTheme);
 </script>

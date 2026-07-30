@@ -1,12 +1,16 @@
 ---
-title: magda-golba
+title: Położna
 summary: Strona położnej i doradczyni laktacyjnej - wizyty, formularz zapisów.
 stack: [Astro]
 role: [full-stack]
 url: https://patrickpinace.github.io/magda-golba/
 hosting: GitHub Pages
-screenshot: magda-golba
-screenshotAlt: magda-golba - strona położnej i doradczyni laktacyjnej
+screenshotAlt: Położna - strona położnej i doradczyni laktacyjnej
+shots:
+  - base: magda-golba-light
+    kind: light
+  - base: magda-golba-light-2
+    kind: light
 tile: normal
 order: 6
 ---

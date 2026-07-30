@@ -5,8 +5,14 @@ stack: [Astro 5, Tailwind 4]
 role: [full-stack]
 url: https://medykalni.pages.dev
 hosting: Cloudflare Pages
-screenshot: medykalni
 screenshotAlt: medykalni - strona szkoleń dla położnych i placówek medycznych
+shots:
+  - base: medykalni-light
+    kind: light
+  - base: medykalni-light-2
+    kind: light
+  - base: medykalni-light-3
+    kind: light
 tile: normal
 order: 5
 ---

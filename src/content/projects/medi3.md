@@ -5,8 +5,18 @@ stack: [Astro, Tailwind]
 role: [full-stack]
 url: https://medi3.pl
 hosting: własny VPS
-screenshot: medi3
 screenshotAlt: medi3 - strona poradni okołoporodowej
+shots:
+  - base: medi3-dark
+    kind: dark
+  - base: medi3-dark-2
+    kind: dark
+  - base: medi3-dark-3
+    kind: dark
+  - base: medi3-dark-4
+    kind: dark
+  - base: medi3-light
+    kind: light
 tile: tall
 order: 2
 ---
