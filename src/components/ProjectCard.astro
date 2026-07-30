@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { project, index } = Astro.props;
-const { title, summary, stack, role, shots, screenshotAlt, tile, inProgress } = project.data;
+const { title, summary, stack, role, shots, screenshotAlt, tile, inProgress, inProgressLabel } = project.data;
 
 // `tile` decyduje tylko o szerokości kafla w siatce (układ bento), NIE o jego
 // proporcjach - te biorą się z realnych wymiarów pierwszej klatki galerii.
@@ -82,7 +82,7 @@ const num = String(index + 1).padStart(2, '0');
     {inProgress && (
       <div class="card-pill absolute left-4 top-4 flex items-center gap-1.5 border font-mono text-[11px]" style="border-color: var(--color-accent-700); color: var(--color-accent-300)">
         <span class="h-1.5 w-1.5 rounded-full" style="background: var(--color-accent-400); animation: nx-pulse 1.8s ease-in-out infinite"></span>
-        w budowie · ~95%
+        {inProgressLabel}
       </div>
     )}
 

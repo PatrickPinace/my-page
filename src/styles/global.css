@@ -463,8 +463,8 @@ html {
   outline-offset: 2px;
 }
 .theme-toggle .swatch {
-  width: 9px;
-  height: 9px;
+  width: 3px;
+  height: 14px;
   border-radius: 999px;
   background: var(--color-accent);
 }

@@ -1,5 +1,5 @@
 ---
-title: ortomielec
+title: Ortomielec
 summary: Strona lekarza dentysty - ortodoncja dzieci i dorosłych, umawianie wizyt online.
 stack: [Astro, Tailwind 4]
 role: [full-stack]

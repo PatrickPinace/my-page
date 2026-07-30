@@ -1,5 +1,5 @@
 ---
-title: medykalni
+title: Medykalni
 summary: Szkolenia i projekty dla położnych oraz placówek medycznych.
 stack: [Astro 5, Tailwind 4]
 role: [full-stack]

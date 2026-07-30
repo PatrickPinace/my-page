@@ -19,6 +19,8 @@ shots:
     kind: light
 tile: wide
 featured: true
+inProgress: true
+inProgressLabel: rozwijany na bieżąco
 order: 1
 ---
 

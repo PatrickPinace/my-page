@@ -28,6 +28,10 @@ const projects = defineCollection({
     tile: z.enum(['wide', 'tall', 'normal']),
     featured: z.boolean().default(false),
     inProgress: z.boolean().default(false),
+    /** Tekst pastylki "w budowie" na kaflu, gdy inProgress=true. Domyślnie
+     *  pasuje do jednorazowego MVP (SubForge); projekty już wdrożone,
+     *  ale stale rozwijane (np. Portal tenisowy), dostają własny tekst. */
+    inProgressLabel: z.string().default('w budowie · ~95%'),
     order: z.number(),
   }),
 });
