@@ -162,10 +162,10 @@ const shots = shotDefs.map((s) => {
           do którego się odnosi. */}
       <div class="mb-9 flex justify-between border-b border-[var(--color-neutral-900)] pb-5 text-sm">
         {prev ? (
-          <a href={path(`/projekty/${prev.id}`)} class="case-nav-link text-[var(--color-accent-300)] no-underline transition-colors hover:text-[var(--color-accent-200)]">← {prev.data.title}</a>
+          <a href={path(`/projekty/${prev.id}`)} class="case-nav-link text-[var(--color-accent)] no-underline transition-colors hover:text-[var(--color-accent-200)]">← {prev.data.title}</a>
         ) : <span></span>}
         {next ? (
-          <a href={path(`/projekty/${next.id}`)} class="case-nav-link text-[var(--color-accent-300)] no-underline transition-colors hover:text-[var(--color-accent-200)]">{next.data.title} →</a>
+          <a href={path(`/projekty/${next.id}`)} class="case-nav-link text-[var(--color-accent)] no-underline transition-colors hover:text-[var(--color-accent-200)]">{next.data.title} →</a>
         ) : <span></span>}
       </div>
 
