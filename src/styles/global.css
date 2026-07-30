@@ -13,7 +13,6 @@
      i --color-bg-* przez [data-theme="ruda"] bez zmian w komponentach. */
   --color-bg: #0e0f17;
   --color-surface: #1b1d29;
-  --color-surface-2: #0b0c12;
 
   --color-text: #f2f1f6;
   --color-ink-300: #c9c7d6;
@@ -58,7 +57,6 @@
 [data-theme="ruda"] {
   --color-bg: #14120f;
   --color-surface: #1e1b17;
-  --color-surface-2: #0f0d0b;
 
   --color-text: #f0ebe4;
   --color-ink-300: #c4bdb4;
@@ -169,11 +167,6 @@ hr.hr {
 .tag-outline {
   border: 1px solid var(--color-ink-800);
   color: var(--color-ink-400);
-}
-.tag-accent {
-  border: 1px solid var(--color-accent-700);
-  color: var(--color-accent-200);
-  background: rgb(var(--accent-rgb) / 0.1);
 }
 .tag-neutral {
   background: var(--color-ink-900);
