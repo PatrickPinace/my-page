@@ -16,9 +16,9 @@ import { url } from '../lib/paths';
     <nav class="flex items-center gap-2 text-[var(--color-neutral-400)] sm:gap-4 md:gap-6">
       <!-- Projekty i Kontakt zostają widoczne na każdej szerokości - O mnie
            chowa się pierwsze, bo Projekty i tak prowadzi tam gdzie ono. -->
-      <a href={url('/#projekty')} class="no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)]">Projekty</a>
-      <a href={url('/#o-mnie')} class="hidden no-underline text-[var(--color-neutral-400)] hover:text-[var(--color-accent-300)] sm:inline">O mnie</a>
-      <a href="mailto:minor.michal1@gmail.com" target="_blank" rel="noopener" class="no-underline text-[var(--color-accent-300)]">Kontakt</a>
+      <a href={url('/#projekty')} class="no-underline text-[var(--color-accent-300)] transition-colors hover:text-[var(--color-accent-200)]">Projekty</a>
+      <a href={url('/#o-mnie')} class="hidden no-underline text-[var(--color-accent-300)] transition-colors hover:text-[var(--color-accent-200)] sm:inline">O mnie</a>
+      <a href="mailto:minor.michal1@gmail.com" target="_blank" rel="noopener" class="no-underline text-[var(--color-accent-300)] transition-colors hover:text-[var(--color-accent-200)]">Kontakt</a>
       <ThemeToggle />
     </nav>
   </div>
