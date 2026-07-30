@@ -16,12 +16,12 @@
   --color-surface-2: #0b0c12;
 
   --color-text: #f2f1f6;
-  --color-neutral-300: #c9c7d6;
-  --color-neutral-400: #a6a3b8;
-  --color-neutral-500: #7d7a8f;
-  --color-neutral-600: #5c596b;
-  --color-neutral-800: #2a2b3a;
-  --color-neutral-900: #1e1f2b;
+  --color-ink-300: #c9c7d6;
+  --color-ink-400: #a6a3b8;
+  --color-ink-500: #7d7a8f;
+  --color-ink-600: #5c596b;
+  --color-ink-800: #2a2b3a;
+  --color-ink-900: #1e1f2b;
 
   --color-accent: #9184d9;
   --color-accent-200: #cac4ee;
@@ -61,12 +61,12 @@
   --color-surface-2: #0f0d0b;
 
   --color-text: #f0ebe4;
-  --color-neutral-300: #c4bdb4;
-  --color-neutral-400: #a8a099;
-  --color-neutral-500: #8d857e;
-  --color-neutral-600: #6b645d;
-  --color-neutral-800: #3a352e;
-  --color-neutral-900: #262219;
+  --color-ink-300: #c4bdb4;
+  --color-ink-400: #a8a099;
+  --color-ink-500: #8d857e;
+  --color-ink-600: #6b645d;
+  --color-ink-800: #3a352e;
+  --color-ink-900: #262219;
 
   --color-accent: #e08a4b;
   --color-accent-200: #f3c79e;
@@ -97,7 +97,7 @@
    zgodnie z zamierzoną kolejnością warstw base < components < utilities.
    Poza warstwą te same reguły wygrywałyby zawsze, niezależnie od
    specyficzności - to właśnie działo się z "a { color: ... }" przebijającym
-   text-[var(--color-neutral-600)] na linkach w Hero. */
+   text-[var(--color-ink-600)] na linkach w Hero. */
 @layer base {
   html {
     color-scheme: dark;
@@ -127,7 +127,7 @@
 
 hr.hr {
   border: none;
-  border-top: 1px solid var(--color-neutral-800);
+  border-top: 1px solid var(--color-ink-800);
 }
 
 .btn {
@@ -150,7 +150,7 @@ hr.hr {
   color: var(--on-accent);
 }
 .btn-secondary {
-  border: 1px solid var(--color-neutral-800);
+  border: 1px solid var(--color-ink-800);
   color: var(--color-text);
 }
 .btn-secondary:hover {
@@ -167,8 +167,8 @@ hr.hr {
   font-family: var(--font-mono);
 }
 .tag-outline {
-  border: 1px solid var(--color-neutral-800);
-  color: var(--color-neutral-400);
+  border: 1px solid var(--color-ink-800);
+  color: var(--color-ink-400);
 }
 .tag-accent {
   border: 1px solid var(--color-accent-700);
@@ -176,8 +176,8 @@ hr.hr {
   background: rgb(var(--accent-rgb) / 0.1);
 }
 .tag-neutral {
-  background: var(--color-neutral-900);
-  color: var(--color-neutral-300);
+  background: var(--color-ink-900);
+  color: var(--color-ink-300);
 }
 
 .group:hover .card-tags .tag-outline {
@@ -204,7 +204,7 @@ hr.hr {
 }
 .site-header.is-stuck {
   background: rgb(var(--bg-rgb) / 0.75);
-  border-bottom-color: var(--color-neutral-800);
+  border-bottom-color: var(--color-ink-800);
 }
 
 /* Pastylki: nośnik kontrastu, niezależny od tego, co leży pod paskiem.
@@ -433,12 +433,12 @@ html {
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: var(--color-neutral-600);
+  background: var(--color-ink-600);
   cursor: pointer;
   transition: background-color 0.15s, width 0.15s;
 }
 .shot-dot:hover {
-  background: var(--color-neutral-400);
+  background: var(--color-ink-400);
 }
 .shot-dot.is-active {
   width: 16px;
@@ -459,7 +459,7 @@ html {
   width: 26px;
   height: 26px;
   padding: 0;
-  border: 1px solid var(--color-neutral-800);
+  border: 1px solid var(--color-ink-800);
   border-radius: 999px;
   background: transparent;
   cursor: pointer;
