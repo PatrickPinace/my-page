@@ -93,29 +93,36 @@
   --font-mono: var(--font-mono);
 }
 
-html {
-  color-scheme: dark;
-}
+/* @layer base: reset musi ustępować utility klasom Tailwinda (text-[...] itp.)
+   zgodnie z zamierzoną kolejnością warstw base < components < utilities.
+   Poza warstwą te same reguły wygrywałyby zawsze, niezależnie od
+   specyficzności - to właśnie działo się z "a { color: ... }" przebijającym
+   text-[var(--color-neutral-600)] na linkach w Hero. */
+@layer base {
+  html {
+    color-scheme: dark;
+  }
 
-body {
-  margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-body);
-}
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  margin: 0;
-}
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
 
-a {
-  color: var(--color-accent);
-}
-a:hover {
-  color: var(--color-accent-300);
+  a {
+    color: var(--color-accent);
+  }
+  a:hover {
+    color: var(--color-accent-300);
+  }
 }
 
 hr.hr {
