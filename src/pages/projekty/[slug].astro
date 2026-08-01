@@ -327,6 +327,14 @@ const shots = shotDefs.map((s) => {
     // środka (środkowe 50% szerokości) otwiera lightbox - strefy nie mogą się
     // nakładać, więc próg musi być spójny z tym w handlerze lightboxa niżej.
     frame.addEventListener('click', (e) => {
+      if (swipeHandled) {
+        // touchend tuż przed tym click-em już obsłużył gest jako swipe -
+        // bez tego przeglądarka doda do niego jeszcze zmianę klatki z samego
+        // (syntetycznego) kliknięcia, czyli po jednym przesunięciu palcem
+        // zdjęcie zmieniłoby się dwa razy.
+        swipeHandled = false;
+        return;
+      }
       const target = e.target as HTMLElement;
       if (target.closest('.shot-arrow') || shots.length < 2) return;
       const rect = frame.getBoundingClientRect();
@@ -336,6 +344,29 @@ const shots = shotDefs.map((s) => {
         return;
       }
       goTo(index + (ratioX < 0.25 ? -1 : 1));
+    });
+
+    // Swipe w lewo/prawo NA zdjęciu przełącza klatki karuzeli - osobny gest
+    // od tap-owego "klik w skraj" wyżej, bo na dotyku i tak każde touchend
+    // kończy się syntetycznym click w to samo miejsce (stąd swipeHandled).
+    const SWIPE_THRESHOLD = 40;
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    let swipeHandled = false;
+
+    frame.addEventListener('touchstart', (e) => {
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+      swipeHandled = false;
+    });
+
+    frame.addEventListener('touchend', (e) => {
+      if (shots.length < 2) return;
+      const dx = e.changedTouches[0].clientX - swipeStartX;
+      const dy = e.changedTouches[0].clientY - swipeStartY;
+      if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+      swipeHandled = true;
+      goTo(index + (dx > 0 ? -1 : 1));
     });
 
     // Strzałki klawiatury, gdy galeria (lub coś w niej) ma fokus.
