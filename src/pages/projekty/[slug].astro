@@ -179,10 +179,10 @@ const shots = shotDefs.map((s) => {
           do którego się odnosi. */}
       <div class="mb-9 flex justify-between border-b border-ink-900 pb-5 text-sm">
         {prev ? (
-          <a href={path(`/projekty/${prev.id}`)} class="case-nav-link text-accent no-underline transition-colors hover:text-accent-200">← {prev.data.title}</a>
+          <a href={path(`/projekty/${prev.id}`)} class="case-nav-link text-accent no-underline transition-colors hover:text-accent-200" data-nav-dir="prev">← {prev.data.title}</a>
         ) : <span></span>}
         {next ? (
-          <a href={path(`/projekty/${next.id}`)} class="case-nav-link text-accent no-underline transition-colors hover:text-accent-200">{next.data.title} →</a>
+          <a href={path(`/projekty/${next.id}`)} class="case-nav-link text-accent no-underline transition-colors hover:text-accent-200" data-nav-dir="next">{next.data.title} →</a>
         ) : <span></span>}
       </div>
 
@@ -199,284 +199,350 @@ const shots = shotDefs.map((s) => {
 </Base>
 
 <script>
-  // Nawigacja prev/next między projektami to zwykłe przeładowanie strony,
-  // więc przeglądarka domyślnie wraca na górę. Zapisujemy pozycję scrolla
-  // pod kluczem docelowego URL-a tuż przed opuszczeniem strony - odczyt i
-  // przywrócenie pozycji siedzi w Base.astro, w inline-skrypcie w <head>,
-  // żeby wykonać się przed pierwszym malowaniem (inaczej widać skok/
-  // "wysunięcie" treści po tym, jak przeglądarka zdąży narysować górę strony).
-  document.querySelectorAll<HTMLAnchorElement>('.case-nav-link').forEach((link) => {
-    link.addEventListener('click', () => {
-      sessionStorage.setItem('scrollTo:' + link.href, String(window.scrollY));
+  import { navigate } from 'astro:transitions/client';
+
+  // Wszystko poniżej (zapis scrolla, swipe międzyprojektowy, karuzela,
+  // lightbox) siedzi w jednej funkcji init, wywoływanej na astro:page-load
+  // zamiast raz przy pierwszym parsowaniu modułu.
+  //
+  // Powód: ClientRouter (View Transitions, włączony w Base.astro dla
+  // animowanego przejścia prev/next) podmienia zawartość <body> przy każdej
+  // nawigacji SPA, ale sam <script type="module"> tej strony NIE jest
+  // wczytywany na nowo z sieci przy powrocie na ten sam route - obiekt modułu
+  // (i jego zmienne domknięcia: `index`, `timer`, `userPaused`...) zostaje w
+  // pamięci silnika JS między nawigacjami. Gdyby kod wykonywał się tylko raz,
+  // na starcie modułu, po powrocie na /projekty/[slug] (np. next -> prev ->
+  // ten sam slug) DOM byłby nowy (nowe elementy z fetchowanego dokumentu), ale
+  // stare listenery i stary setTimeout z poprzedniej wizyty tej strony nadal
+  // by żyły, wskazując na ODŁĄCZONE (poprzednie) elementy DOM - efekt:
+  // zdublowany/przyspieszony autoplay i nieotwierający się lightbox, opisany
+  // w zadaniu. astro:page-load gwarantuje, że init() dostaje świeże elementy
+  // querySelectorAll za KAŻDYM razem; cleanup() (patrz dół pliku, spięty pod
+  // astro:before-swap) usuwa timery/listenery poprzedniej instancji, zanim
+  // ClientRouter podmieni DOM, więc nic z poprzedniej wizyty nie przecieka.
+  let cleanupCasePage: (() => void) | null = null;
+
+  function initCasePage() {
+    cleanupCasePage?.();
+    const cleanupFns: Array<() => void> = [];
+    const on = <K extends keyof DocumentEventMap | string>(
+      target: EventTarget,
+      type: K,
+      handler: EventListenerOrEventListenerObject,
+      opts?: boolean | AddEventListenerOptions
+    ) => {
+      target.addEventListener(type as string, handler, opts);
+      cleanupFns.push(() => target.removeEventListener(type as string, handler, opts));
+    };
+
+    // Nawigacja prev/next między projektami: zapisujemy pozycję scrolla pod
+    // kluczem docelowego URL-a tuż przed opuszczeniem strony (klik jest
+    // synchroniczny, więc to zawsze zdąży przed nawigacją, SPA czy nie) -
+    // odczyt i przywrócenie siedzi w Base.astro (patrz astro:page-load tam).
+    //
+    // Kierunek animacji (prev/next) idzie przez sessionStorage, NIE przez
+    // bezpośrednie ustawienie data-nav-dir na <html> - swapRootAttributes()
+    // Astro i tak kasuje WSZYSTKIE atrybuty <html> przy swapie (zweryfikowane
+    // empirycznie, patrz komentarz w Base.astro przy applyTheme/applyNavDir),
+    // więc atrybut ustawiony tutaj zostałby starty, zanim
+    // ::view-transition-old/new zdąży go odczytać. Base.astro odczytuje ten
+    // klucz w tym samym miejscu (before-swap -> swap wrapper), w którym
+    // odtwarza data-theme, i doszczepia go do NOWEGO <html> analogicznie.
+    document.querySelectorAll<HTMLAnchorElement>('.case-nav-link').forEach((link) => {
+      on(link, 'click', () => {
+        sessionStorage.setItem('scrollTo:' + link.href, String(window.scrollY));
+        sessionStorage.setItem('pendingNavDir', link.dataset.navDir ?? '');
+      });
     });
-  });
-</script>
 
-<script>
-  // Swipe w lewo/prawo przechodzi do sąsiedniego projektu - ale tylko gdy
-  // gest zaczyna się POZA galerią zdjęć, żeby nie kolidować z przewijaniem
-  // zdjęć w karuzeli (tam dotyk jest już zajęty przez klik lewo/prawo).
-  // Celowo zwykłe przejście na nowy URL, bez zapamiętywania scrolla -
-  // przy zmianie projektu ma się zaczynać od góry, tak jak strzałki tekstowe.
-  const page = document.getElementById('case-page');
-  const gallery = document.querySelector('.shot-gallery');
+    // Swipe w lewo/prawo przechodzi do sąsiedniego projektu - ale tylko gdy
+    // gest zaczyna się POZA galerią zdjęć, żeby nie kolidować z przewijaniem
+    // zdjęć w karuzeli (tam dotyk jest już zajęty przez klik lewo/prawo).
+    // navigate() (astro:transitions/client) zamiast location.href, żeby
+    // przejście poszło przez ClientRouter i odpaliło tę samą animowaną
+    // tranzycję co klik w strzałkę tekstową - próg i kierunek gestu (60px,
+    // dx>0 = prev, dx<0 = next, ignorowanie gestu bardziej pionowego niż
+    // poziomego) zostają identyczne jak przed zmianą.
+    const page = document.getElementById('case-page');
+    const gallery0 = document.querySelector('.shot-gallery');
 
-  if (page) {
-    const prevHref = page.dataset.swipePrev;
-    const nextHref = page.dataset.swipeNext;
-    const THRESHOLD = 60;
-    let startX = 0;
-    let startY = 0;
-    let tracking = false;
+    if (page) {
+      const prevHref = page.dataset.swipePrev;
+      const nextHref = page.dataset.swipeNext;
+      const THRESHOLD = 60;
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
 
-    page.addEventListener('touchstart', (e) => {
-      const target = e.target as HTMLElement;
-      tracking = !gallery?.contains(target);
-      if (!tracking) return;
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-    });
+      on(page, 'touchstart', ((e: TouchEvent) => {
+        const target = e.target as HTMLElement;
+        tracking = !gallery0?.contains(target);
+        if (!tracking) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }) as EventListener);
 
-    page.addEventListener('touchend', (e) => {
-      if (!tracking) return;
-      tracking = false;
-      const dx = e.changedTouches[0].clientX - startX;
-      const dy = e.changedTouches[0].clientY - startY;
-      // Ignoruj przewijanie pionowe błędnie odczytane jako poziomy gest.
-      if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
-      const href = dx > 0 ? prevHref : nextHref;
-      if (href) window.location.href = href;
-    });
-  }
-</script>
-
-<script>
-  // Karuzela: strzałki, kropki, klik w połowę zdjęcia i strzałki klawiatury
-  // dla nawigacji ręcznej; autoplay w tle (13–19 s na klatkę) dopóki nikt
-  // nie kliknął pauzy ani nie najechał kursorem. Zatrzymuje się też poza
-  // ekranem, żeby nie tykać w tle.
-  const gallery = document.querySelector<HTMLElement>('.shot-gallery');
-  const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // Klatki z jasnym zrzutem niosą dwa pliki (przyciemnione pod każdy motyw) -
-  // która wersja jest widoczna, zależy wyłącznie od aktywnego data-theme, nie
-  // od autoplaya karuzeli.
-  const applyGalleryTheme = () => {
-    gallery?.classList.toggle('theme-ruda', document.documentElement.dataset.theme === 'ruda');
-  };
-  applyGalleryTheme();
-  document.addEventListener('theme-change', applyGalleryTheme);
-
-  if (gallery) {
-    const frame = gallery.querySelector<HTMLElement>('.shot-frame')!;
-    const ratios = JSON.parse(frame.dataset.ratios ?? '[]') as string[];
-    const shots = Array.from(gallery.querySelectorAll<HTMLElement>('.shot'));
-    const dots = Array.from(gallery.querySelectorAll<HTMLButtonElement>('.shot-dot'));
-    const prevBtn = gallery.querySelector<HTMLButtonElement>('.shot-arrow-prev');
-    const nextBtn = gallery.querySelector<HTMLButtonElement>('.shot-arrow-next');
-    const playBtn = gallery.querySelector<HTMLButtonElement>('.shot-play');
-
-    if (shots.length < 2) {
-      gallery.classList.add('has-single');
+      on(page, 'touchend', ((e: TouchEvent) => {
+        if (!tracking) return;
+        tracking = false;
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        // Ignoruj przewijanie pionowe błędnie odczytane jako poziomy gest.
+        if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+        const dir = dx > 0 ? 'prev' : 'next';
+        const href = dx > 0 ? prevHref : nextHref;
+        if (href) {
+          sessionStorage.setItem('pendingNavDir', dir);
+          navigate(href);
+        }
+      }) as EventListener);
     }
 
-    let index = 0;
-    let timer = 0;
-    let userPaused = false;
-    let inView = true;
+    // Karuzela: strzałki, kropki, klik w połowę zdjęcia i strzałki klawiatury
+    // dla nawigacji ręcznej; autoplay w tle (13–19 s na klatkę) dopóki nikt
+    // nie kliknął pauzy ani nie najechał kursorem. Zatrzymuje się też poza
+    // ekranem, żeby nie tykać w tle.
+    const gallery = document.querySelector<HTMLElement>('.shot-gallery');
+    const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const show = (i: number) => {
-      index = (i + shots.length) % shots.length;
-      shots.forEach((el, n) => el.classList.toggle('is-active', n === index));
-      dots.forEach((el, n) => {
-        el.classList.toggle('is-active', n === index);
-        el.setAttribute('aria-selected', String(n === index));
-      });
-      if (ratios[index]) frame.style.aspectRatio = ratios[index];
+    // Klatki z jasnym zrzutem niosą dwa pliki (przyciemnione pod każdy motyw) -
+    // która wersja jest widoczna, zależy wyłącznie od aktywnego data-theme, nie
+    // od autoplaya karuzeli.
+    const applyGalleryTheme = () => {
+      gallery?.classList.toggle('theme-ruda', document.documentElement.dataset.theme === 'ruda');
     };
+    applyGalleryTheme();
+    on(document, 'theme-change', applyGalleryTheme);
 
-    const stop = () => {
-      window.clearTimeout(timer);
-      timer = 0;
-    };
+    if (gallery) {
+      const frame = gallery.querySelector<HTMLElement>('.shot-frame')!;
+      const ratios = JSON.parse(frame.dataset.ratios ?? '[]') as string[];
+      const shots = Array.from(gallery.querySelectorAll<HTMLElement>('.shot'));
+      const dots = Array.from(gallery.querySelectorAll<HTMLButtonElement>('.shot-dot'));
+      const prevBtn = gallery.querySelector<HTMLButtonElement>('.shot-arrow-prev');
+      const nextBtn = gallery.querySelector<HTMLButtonElement>('.shot-arrow-next');
+      const playBtn = gallery.querySelector<HTMLButtonElement>('.shot-play');
 
-    const schedule = () => {
-      stop();
-      // Lightbox żyje poza .shot-gallery, więc mouseenter/mouseleave i
-      // IntersectionObserver na galerii nie wiedzą, że jest otwarty - kursor
-      // jadący do strzałki lightboxa mija się z galerią i wywołuje
-      // mouseleave, co bez tego warunku wznawiało autoplay w tle, mimo że
-      // user wciąż patrzy na powiększone zdjęcie.
-      if (!motionOK || userPaused || !inView || shots.length < 2 || lightbox?.classList.contains('is-open')) return;
-      timer = window.setTimeout(() => {
-        show(index + 1);
+      if (shots.length < 2) {
+        gallery.classList.add('has-single');
+      }
+
+      let index = 0;
+      let timer = 0;
+      let userPaused = false;
+      let inView = true;
+
+      const show = (i: number) => {
+        index = (i + shots.length) % shots.length;
+        shots.forEach((el, n) => el.classList.toggle('is-active', n === index));
+        dots.forEach((el, n) => {
+          el.classList.toggle('is-active', n === index);
+          el.setAttribute('aria-selected', String(n === index));
+        });
+        if (ratios[index]) frame.style.aspectRatio = ratios[index];
+      };
+
+      const stop = () => {
+        window.clearTimeout(timer);
+        timer = 0;
+      };
+      cleanupFns.push(stop);
+
+      const schedule = () => {
+        stop();
+        // Lightbox żyje poza .shot-gallery, więc mouseenter/mouseleave i
+        // IntersectionObserver na galerii nie wiedzą, że jest otwarty - kursor
+        // jadący do strzałki lightboxa mija się z galerią i wywołuje
+        // mouseleave, co bez tego warunku wznawiało autoplay w tle, mimo że
+        // user wciąż patrzy na powiększone zdjęcie.
+        if (!motionOK || userPaused || !inView || shots.length < 2 || lightbox?.classList.contains('is-open')) return;
+        timer = window.setTimeout(() => {
+          show(index + 1);
+          schedule();
+        }, 13000 + Math.random() * 6000);
+      };
+
+      const goTo = (i: number) => {
+        show(i);
         schedule();
-      }, 13000 + Math.random() * 6000);
-    };
+      };
 
-    const goTo = (i: number) => {
-      show(i);
-      schedule();
-    };
+      if (prevBtn) on(prevBtn, 'click', () => goTo(index - 1));
+      if (nextBtn) on(nextBtn, 'click', () => goTo(index + 1));
+      dots.forEach((dot, n) => on(dot, 'click', () => goTo(n)));
 
-    prevBtn?.addEventListener('click', () => goTo(index - 1));
-    nextBtn?.addEventListener('click', () => goTo(index + 1));
-    dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
+      // Klik w lewy/prawy skraj zdjęcia zmienia klatkę (jak dotąd); klik blisko
+      // środka (środkowe 50% szerokości) otwiera lightbox - strefy nie mogą się
+      // nakładać, więc próg musi być spójny z tym w handlerze lightboxa niżej.
+      // swipeHandled: touchend tuż przed tym click-em już obsłużył gest jako
+      // swipe - bez tej flagi przeglądarka doda do niego jeszcze zmianę klatki
+      // z samego (syntetycznego) kliknięcia, czyli po jednym przesunięciu
+      // palcem zdjęcie zmieniłoby się dwa razy.
+      on(frame, 'click', ((e: MouseEvent) => {
+        if (swipeHandled) {
+          swipeHandled = false;
+          return;
+        }
+        const target = e.target as HTMLElement;
+        if (target.closest('.shot-arrow') || shots.length < 2) return;
+        const rect = frame.getBoundingClientRect();
+        const ratioX = (e.clientX - rect.left) / rect.width;
+        if (ratioX >= 0.25 && ratioX <= 0.75) {
+          openLightbox();
+          return;
+        }
+        goTo(index + (ratioX < 0.25 ? -1 : 1));
+      }) as EventListener);
 
-    // Klik w lewy/prawy skraj zdjęcia zmienia klatkę (jak dotąd); klik blisko
-    // środka (środkowe 50% szerokości) otwiera lightbox - strefy nie mogą się
-    // nakładać, więc próg musi być spójny z tym w handlerze lightboxa niżej.
-    frame.addEventListener('click', (e) => {
-      if (swipeHandled) {
-        // touchend tuż przed tym click-em już obsłużył gest jako swipe -
-        // bez tego przeglądarka doda do niego jeszcze zmianę klatki z samego
-        // (syntetycznego) kliknięcia, czyli po jednym przesunięciu palcem
-        // zdjęcie zmieniłoby się dwa razy.
+      // Swipe w lewo/prawo NA zdjęciu przełącza klatki karuzeli - osobny gest
+      // od tap-owego "klik w skraj" wyżej.
+      const SWIPE_THRESHOLD = 40;
+      let swipeStartX = 0;
+      let swipeStartY = 0;
+      let swipeHandled = false;
+
+      on(frame, 'touchstart', ((e: TouchEvent) => {
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
         swipeHandled = false;
-        return;
+      }) as EventListener);
+
+      on(frame, 'touchend', ((e: TouchEvent) => {
+        if (shots.length < 2) return;
+        const dx = e.changedTouches[0].clientX - swipeStartX;
+        const dy = e.changedTouches[0].clientY - swipeStartY;
+        if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+        swipeHandled = true;
+        goTo(index + (dx > 0 ? -1 : 1));
+      }) as EventListener);
+
+      // Strzałki klawiatury, gdy galeria (lub coś w niej) ma fokus.
+      gallery.setAttribute('tabindex', '0');
+      on(gallery, 'keydown', ((e: KeyboardEvent) => {
+        if (shots.length < 2) return;
+        if (e.key === 'ArrowLeft') goTo(index - 1);
+        if (e.key === 'ArrowRight') goTo(index + 1);
+      }) as EventListener);
+
+      if (playBtn) {
+        on(playBtn, 'click', () => {
+          userPaused = !userPaused;
+          gallery.classList.toggle('is-paused', userPaused);
+          schedule();
+        });
       }
-      const target = e.target as HTMLElement;
-      if (target.closest('.shot-arrow') || shots.length < 2) return;
-      const rect = frame.getBoundingClientRect();
-      const ratioX = ((e as MouseEvent).clientX - rect.left) / rect.width;
-      if (ratioX >= 0.25 && ratioX <= 0.75) {
-        openLightbox();
-        return;
+
+      on(gallery, 'mouseenter', stop);
+      on(gallery, 'mouseleave', schedule);
+
+      const galleryObserver = new IntersectionObserver(
+        ([e]) => {
+          inView = e.isIntersecting;
+          inView ? schedule() : stop();
+        },
+        { threshold: 0.2 }
+      );
+      galleryObserver.observe(gallery);
+      cleanupFns.push(() => galleryObserver.disconnect());
+
+      // Lightbox: pełnoekranowy podgląd. Źródło obrazka bierze się z tego, co
+      // już wyrenderowane w klatce - dla pary jasny/ciemny motyw to ten sam
+      // obrazek, który akurat pokazuje karuzela (patrz applyGalleryTheme wyżej),
+      // więc lightbox nie musi sam wiedzieć nic o motywach.
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = lightbox?.querySelector<HTMLImageElement>('.lightbox-img');
+      const closeBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-close');
+      const lbPrevBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-prev');
+      const lbNextBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-next');
+
+      // .shot bywa samo <img> (klatka 'dark') albo <span> opakowujący dwa <img>
+      // (klatka 'light', .shot-theme-pair) - querySelectorAll('img') szuka
+      // tylko wśród POTOMKÓW, więc dla 'dark' zwracała pustą listę. Który z
+      // dwóch <img> w parze jest widoczny, ustala display:none/block (patrz
+      // applyGalleryTheme + CSS .shot-theme-pair), nie atrybut hidden -
+      // offsetParent sprawdza rzeczywisty layout: null, gdy element (albo
+      // przodek) ma display:none.
+      const currentVisibleImg = (): HTMLImageElement | null => {
+        const active = shots[index];
+        if (!active) return null;
+        if (active instanceof HTMLImageElement) return active;
+        const imgs = Array.from(active.querySelectorAll<HTMLImageElement>('img'));
+        return imgs.find((img) => img.offsetParent !== null) ?? imgs[0] ?? null;
+      };
+
+      const syncLightboxImg = () => {
+        const img = currentVisibleImg();
+        if (lightboxImg && img) {
+          lightboxImg.src = img.src;
+          lightboxImg.alt = img.alt;
+        }
+      };
+
+      // Nawigacja WEWNĄTRZ lightboxa musi zostawić autoplay wyłączony, dopóki
+      // okno jest otwarte - goTo() (używane przez strzałki/kropki pod zdjęciem)
+      // za każdym razem wznawia schedule(), więc klik w strzałkę lightboxa
+      // odpalał w tle autoplay karuzeli. Ten drugi timer po kilku sekundach
+      // sam podmieniał index, rozjeżdżając to, co pokazuje lightbox, z tym,
+      // co naprawdę jest aktywne w karuzeli pod spodem - stąd wrażenie, że
+      // "nie da się wrócić w lewo" (index już uciekł do przodu).
+      const showInLightbox = (i: number) => {
+        show(i);
+        syncLightboxImg();
+      };
+
+      const openLightbox = () => {
+        if (!lightbox) return;
+        syncLightboxImg();
+        lightbox.classList.add('is-open');
+        lightbox.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('lightbox-locked');
+        stop();
+      };
+
+      const closeLightbox = () => {
+        if (!lightbox) return;
+        lightbox.classList.remove('is-open');
+        lightbox.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('lightbox-locked');
+        schedule();
+      };
+
+      if (closeBtn) on(closeBtn, 'click', closeLightbox);
+      // Zamyka też klik w samo zdjęcie, nie tylko w tło dookoła. e.target to
+      // element, w który realnie kliknięto (nie ten, na który bąbelkuje
+      // zdarzenie) - klik w X/strzałki nie trafia w żaden z dwóch warunków
+      // niżej, więc nie zamyka przypadkiem przy okazji przełączania zdjęcia.
+      if (lightbox) {
+        on(lightbox, 'click', ((e: MouseEvent) => {
+          if (e.target === lightbox || (e.target as HTMLElement)?.classList.contains('lightbox-img')) {
+            closeLightbox();
+          }
+        }) as EventListener);
       }
-      goTo(index + (ratioX < 0.25 ? -1 : 1));
-    });
+      if (lbPrevBtn) on(lbPrevBtn, 'click', () => showInLightbox(index - 1));
+      if (lbNextBtn) on(lbNextBtn, 'click', () => showInLightbox(index + 1));
+      on(document, 'keydown', ((e: KeyboardEvent) => {
+        if (!lightbox?.classList.contains('is-open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') showInLightbox(index - 1);
+        if (e.key === 'ArrowRight') showInLightbox(index + 1);
+      }) as EventListener);
 
-    // Swipe w lewo/prawo NA zdjęciu przełącza klatki karuzeli - osobny gest
-    // od tap-owego "klik w skraj" wyżej, bo na dotyku i tak każde touchend
-    // kończy się syntetycznym click w to samo miejsce (stąd swipeHandled).
-    const SWIPE_THRESHOLD = 40;
-    let swipeStartX = 0;
-    let swipeStartY = 0;
-    let swipeHandled = false;
+      show(0);
+    }
 
-    frame.addEventListener('touchstart', (e) => {
-      swipeStartX = e.touches[0].clientX;
-      swipeStartY = e.touches[0].clientY;
-      swipeHandled = false;
-    });
-
-    frame.addEventListener('touchend', (e) => {
-      if (shots.length < 2) return;
-      const dx = e.changedTouches[0].clientX - swipeStartX;
-      const dy = e.changedTouches[0].clientY - swipeStartY;
-      if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
-      swipeHandled = true;
-      goTo(index + (dx > 0 ? -1 : 1));
-    });
-
-    // Strzałki klawiatury, gdy galeria (lub coś w niej) ma fokus.
-    gallery.setAttribute('tabindex', '0');
-    gallery.addEventListener('keydown', (e) => {
-      if (shots.length < 2) return;
-      if (e.key === 'ArrowLeft') goTo(index - 1);
-      if (e.key === 'ArrowRight') goTo(index + 1);
-    });
-
-    playBtn?.addEventListener('click', () => {
-      userPaused = !userPaused;
-      gallery.classList.toggle('is-paused', userPaused);
-      schedule();
-    });
-
-    gallery.addEventListener('mouseenter', stop);
-    gallery.addEventListener('mouseleave', schedule);
-
-    new IntersectionObserver(
-      ([e]) => {
-        inView = e.isIntersecting;
-        inView ? schedule() : stop();
-      },
-      { threshold: 0.2 }
-    ).observe(gallery);
-
-    // Lightbox: pełnoekranowy podgląd. Źródło obrazka bierze się z tego, co
-    // już wyrenderowane w klatce - dla pary jasny/ciemny motyw to ten sam
-    // obrazek, który akurat pokazuje karuzela (patrz applyGalleryTheme wyżej),
-    // więc lightbox nie musi sam wiedzieć nic o motywach.
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = lightbox?.querySelector<HTMLImageElement>('.lightbox-img');
-    const closeBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-close');
-    const lbPrevBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-prev');
-    const lbNextBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-next');
-
-    // .shot bywa samo <img> (klatka 'dark') albo <span> opakowujący dwa <img>
-    // (klatka 'light', .shot-theme-pair) - querySelectorAll('img') szuka
-    // tylko wśród POTOMKÓW, więc dla 'dark' zwracała pustą listę. Który z
-    // dwóch <img> w parze jest widoczny, ustala display:none/block (patrz
-    // applyGalleryTheme + CSS .shot-theme-pair), nie atrybut hidden -
-    // offsetParent sprawdza rzeczywisty layout: null, gdy element (albo
-    // przodek) ma display:none.
-    const currentVisibleImg = (): HTMLImageElement | null => {
-      const active = shots[index];
-      if (!active) return null;
-      if (active instanceof HTMLImageElement) return active;
-      const imgs = Array.from(active.querySelectorAll<HTMLImageElement>('img'));
-      return imgs.find((img) => img.offsetParent !== null) ?? imgs[0] ?? null;
+    cleanupCasePage = () => {
+      cleanupFns.forEach((fn) => fn());
+      cleanupCasePage = null;
     };
-
-    const syncLightboxImg = () => {
-      const img = currentVisibleImg();
-      if (lightboxImg && img) {
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt;
-      }
-    };
-
-    // Nawigacja WEWNĄTRZ lightboxa musi zostawić autoplay wyłączony, dopóki
-    // okno jest otwarte - goTo() (używane przez strzałki/kropki pod zdjęciem)
-    // za każdym razem wznawia schedule(), więc klik w strzałkę lightboxa
-    // odpalał w tle autoplay karuzeli. Ten drugi timer po kilku sekundach
-    // sam podmieniał index, rozjeżdżając to, co pokazuje lightbox, z tym,
-    // co naprawdę jest aktywne w karuzeli pod spodem - stąd wrażenie, że
-    // "nie da się wrócić w lewo" (index już uciekł do przodu).
-    const showInLightbox = (i: number) => {
-      show(i);
-      syncLightboxImg();
-    };
-
-    const openLightbox = () => {
-      if (!lightbox) return;
-      syncLightboxImg();
-      lightbox.classList.add('is-open');
-      lightbox.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('lightbox-locked');
-      stop();
-    };
-
-    const closeLightbox = () => {
-      if (!lightbox) return;
-      lightbox.classList.remove('is-open');
-      lightbox.setAttribute('aria-hidden', 'true');
-      document.body.classList.remove('lightbox-locked');
-      schedule();
-    };
-
-    closeBtn?.addEventListener('click', closeLightbox);
-    // Zamyka też klik w samo zdjęcie, nie tylko w tło dookoła. e.target to
-    // element, w który realnie kliknięto (nie ten, na który bąbelkuje
-    // zdarzenie) - klik w X/strzałki nie trafia w żaden z dwóch warunków
-    // niżej, więc nie zamyka przypadkiem przy okazji przełączania zdjęcia.
-    lightbox?.addEventListener('click', (e) => {
-      if (e.target === lightbox || (e.target as HTMLElement)?.classList.contains('lightbox-img')) {
-        closeLightbox();
-      }
-    });
-    lbPrevBtn?.addEventListener('click', () => showInLightbox(index - 1));
-    lbNextBtn?.addEventListener('click', () => showInLightbox(index + 1));
-    document.addEventListener('keydown', (e) => {
-      if (!lightbox?.classList.contains('is-open')) return;
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') showInLightbox(index - 1);
-      if (e.key === 'ArrowRight') showInLightbox(index + 1);
-    });
-
-    show(0);
   }
+
+  initCasePage();
+  document.addEventListener('astro:page-load', initCasePage);
+  // Sprzątanie PRZED podmianą DOM-u przez ClientRouter (opuszczamy tę stronę,
+  // niezależnie czy user wraca na nią później) - zapobiega dublowaniu
+  // timerów/listenerów opisanemu w komentarzu nad initCasePage.
+  document.addEventListener('astro:before-swap', () => cleanupCasePage?.());
 </script>
 
 <style>
