@@ -91,7 +91,11 @@ const shots = shotDefs.map((s) => {
         </div>
       </div>
 
-      <div class="shot-gallery relative mb-7 overflow-hidden rounded-md shadow-md">
+      <div
+        class="shot-gallery relative mb-7 overflow-hidden rounded-md shadow-md"
+        transition:name="case-gallery"
+        transition:animate="none"
+      >
         <!-- Kontener nie ma stałych proporcji - dostaje aspect-ratio
              aktywnego zdjęcia, więc dopasowuje się do zdjęcia (bez pustego
              tła po bokach), a nie odwrotnie. Wartość startowa (pierwszy shot)
@@ -99,7 +103,20 @@ const shots = shotDefs.map((s) => {
              ładowaniu; skrypt zmienia ją przy każdym przełączeniu klatki.
              Tło (color-surface) siedzi tu, na .shot-frame, a nie na
              .shot-gallery - inaczej rosło z całym kontenerem 1120px i dawało
-             szare pasy po bokach węższego zdjęcia. -->
+             szare pasy po bokach węższego zdjęcia.
+
+             transition:name stałe (nie per-projekt) - w przeciwieństwie do
+             reszty strony (animowanej jako część ::view-transition-old/new
+             (root), patrz global.css sekcja 10) galeria dostaje WŁASNĄ parę
+             ::view-transition-old/new(case-gallery), bo różne projekty mają
+             bardzo różne proporcje zdjęć (1.2:1 do 2.15:1) - gdyby galeria
+             była częścią jednego przesuwanego zrzutu całej strony, w
+             momencie zmiany aspect-ratio na docelowy (po zakończeniu
+             animacji, na żywym DOM) był widoczny "doskok" kształtu.
+             transition:animate="none" wyłącza customowy slide/domyślny
+             crossfade DLA TEGO elementu - stara galeria po prostu znika,
+             nowa się pojawia, bez przejściowego kadru w niewłaściwym
+             kształcie. -->
         <div
           class:list={['shot-frame relative mx-auto flex max-h-[70vh] w-fit max-w-full items-center justify-center', shots.length > 1 && 'cursor-pointer']}
           style={`aspect-ratio: ${shots[0].width} / ${shots[0].height}; background: var(--color-surface)`}
