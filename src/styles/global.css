@@ -662,6 +662,15 @@ body.lightbox-locked {
   from { transform: translateX(-100%); }
 }
 
+/* ::view-transition-group ma domyślnie białe tło (UA stylesheet) - widoczne
+   przez chwilę na krawędzi, skąd wjeżdża nowa strona, zanim ją w pełni
+   zakryje (przy starcie animacji translateX(100%)/(-100%) element jeszcze
+   nie pokrywa całego obszaru). Bez tego: biała smuga z boku podczas
+   przejścia, zauważalna zwłaszcza na większym viewporcie desktopowym. */
+::view-transition-group(root) {
+  background-color: var(--color-bg);
+}
+
 :root[data-nav-dir]::view-transition-old(root) {
   animation: none;
 }
