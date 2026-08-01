@@ -642,40 +642,39 @@ body.lightbox-locked {
 /* --- 10. Przejście między podstronami projektów (View Transitions) ----- */
 
 /* Nawigacja prev/next (strzałki tekstowe albo swipe) między case studies ma
-   wyglądać jak natywny swipe na mobile: nowa strona wjeżdża zza obecnej,
-   stara odjeżdża lekko w przeciwną stronę (paralaksa), zamiast zwykłego
-   przeładowania od zera. Kierunek zależy od gestu/linku - ustawia go
-   inline-skrypt w [slug].astro na <html data-nav-dir="prev|next"> TUŻ przed
-   wywołaniem navigate(), więc w chwili, gdy ClientRouter robi zrzut
-   ::view-transition-old/new, atrybut już tam jest.
-   Domyślne wbudowane `transition:animate="slide"` Astro nie rozróżnia
-   kierunku w zależności od tego, czy to "poprzedni" czy "następny" wpis -
-   stąd customowe @keyframes zamiast niego. */
-@keyframes case-slide-out-to-left {
-  to { transform: translateX(-28%); opacity: 0.4; }
-}
+   wyglądać jak nakładana karta: stara strona stoi NIERUCHOMO, nowa wjeżdża
+   z boku i stopniowo ją przykrywa (zamiast obu w ruchu naraz - to była
+   poprzednia wersja, "paralaksa", ale przy .shot-gallery o innym kształcie
+   niż poprzedni projekt dawała widoczny "doskok" proporcji w połowie
+   przesuwu). Stara treść bez animacji eliminuje ten problem u źródła: skoro
+   się nie rusza, jej zamrożony kształt nigdy nie jest widoczny w ruchu.
+   Kierunek zależy od gestu/linku - ustawia go inline-skrypt w [slug].astro
+   na <html data-nav-dir="prev|next"> TUŻ przed wywołaniem navigate(), więc
+   w chwili, gdy ClientRouter robi zrzut ::view-transition-old/new, atrybut
+   już tam jest.
+   z-index na ::view-transition-new podbity nad old, żeby nowa treść była
+   TA, która nasuwa się na wierzch (domyślna kolejność w standardzie jest
+   odwrotna - old na wierzchu, stąd bez tego nowa wjeżdżałaby pod spód). */
 @keyframes case-slide-in-from-right {
   from { transform: translateX(100%); }
-}
-@keyframes case-slide-out-to-right {
-  to { transform: translateX(28%); opacity: 0.4; }
 }
 @keyframes case-slide-in-from-left {
   from { transform: translateX(-100%); }
 }
 
-/* next → treść "ucieka" w lewo, nowa wjeżdża z prawej (jak gest swipe w lewo). */
-:root[data-nav-dir="next"]::view-transition-old(root) {
-  animation: 360ms cubic-bezier(0.22, 1, 0.36, 1) both case-slide-out-to-left;
+:root[data-nav-dir]::view-transition-old(root) {
+  animation: none;
 }
+:root[data-nav-dir]::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* next → nowa wjeżdża z prawej (jak gest swipe w lewo). */
 :root[data-nav-dir="next"]::view-transition-new(root) {
   animation: 360ms cubic-bezier(0.22, 1, 0.36, 1) both case-slide-in-from-right;
 }
 
-/* prev → odwrotnie: stara treść ucieka w prawo, nowa wjeżdża z lewej. */
-:root[data-nav-dir="prev"]::view-transition-old(root) {
-  animation: 360ms cubic-bezier(0.22, 1, 0.36, 1) both case-slide-out-to-right;
-}
+/* prev → nowa wjeżdża z lewej. */
 :root[data-nav-dir="prev"]::view-transition-new(root) {
   animation: 360ms cubic-bezier(0.22, 1, 0.36, 1) both case-slide-in-from-left;
 }
