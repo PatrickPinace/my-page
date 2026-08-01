@@ -9,8 +9,19 @@
 </button>
 
 <script>
-  const btn = document.getElementById('theme-toggle');
-  btn?.addEventListener('click', () => {
+  // Delegacja na document zamiast getElementById + listener na elemencie:
+  // Header (i ten przycisk) żyje w <slot />, więc przy każdej nawigacji
+  // ClientRouter dostaje NOWY element DOM. Astro odróżnia skrypty po
+  // treści (scriptsAlreadyRan w swap-functions.js) - ten sam tekst skryptu
+  // (identyczny na każdej stronie, bo komponent jest wszędzie) odpala się
+  // tylko RAZ w całej sesji SPA, więc listener podpięty bezpośrednio na
+  // starym elemencie nigdy by nie trafił na nowy przycisk po swapie
+  // (efekt zaobserwowany: przełącznik przestawał działać po wejściu w
+  // podstronę projektu, do czasu pełnego przeładowania). Delegacja na
+  // document nie ma tego problemu - document przeżywa swap niezmieniony.
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement)?.closest('#theme-toggle');
+    if (!btn) return;
     const next = document.documentElement.dataset.theme === 'ruda' ? 'nocturne' : 'ruda';
     document.documentElement.dataset.theme = next;
     document
