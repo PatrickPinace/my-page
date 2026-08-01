@@ -245,10 +245,13 @@ const shots = shotDefs.map((s) => {
       cleanupFns.push(() => target.removeEventListener(type as string, handler, opts));
     };
 
-    // Nawigacja prev/next między projektami: zapisujemy pozycję scrolla pod
-    // kluczem docelowego URL-a tuż przed opuszczeniem strony (klik jest
-    // synchroniczny, więc to zawsze zdąży przed nawigacją, SPA czy nie) -
-    // odczyt i przywrócenie siedzi w Base.astro (patrz astro:page-load tam).
+    // Nawigacja prev/next między projektami: zapisujemy POZYCJĘ PROCENTOWĄ
+    // scrolla (0 = góra, 1 = dół), nie surowy scrollY - projekty mają różną
+    // długość opisu i różną liczbę zdjęć w galerii, więc "tyle samo pikseli"
+    // ląduje w zupełnie innym miejscu treści na dłuższej/krótszej stronie.
+    // Procent przeliczamy z powrotem na piksele DOCELOWEJ strony w
+    // Base.astro (patrz astro:page-load tam) - stąd jeden klucz, nie per-URL
+    // jak poprzednio (procent nie zależy od tego, dokąd nawigujemy).
     //
     // Kierunek animacji (prev/next) idzie przez sessionStorage, NIE przez
     // bezpośrednie ustawienie data-nav-dir na <html> - swapRootAttributes()
@@ -258,9 +261,15 @@ const shots = shotDefs.map((s) => {
     // ::view-transition-old/new zdąży go odczytać. Base.astro odczytuje ten
     // klucz w tym samym miejscu (before-swap -> swap wrapper), w którym
     // odtwarza data-theme, i doszczepia go do NOWEGO <html> analogicznie.
+    const saveScrollRatio = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      sessionStorage.setItem('pendingScrollRatio', String(ratio));
+    };
+
     document.querySelectorAll<HTMLAnchorElement>('.case-nav-link').forEach((link) => {
       on(link, 'click', () => {
-        sessionStorage.setItem('scrollTo:' + link.href, String(window.scrollY));
+        saveScrollRatio();
         sessionStorage.setItem('pendingNavDir', link.dataset.navDir ?? '');
       });
     });
@@ -302,6 +311,7 @@ const shots = shotDefs.map((s) => {
         const dir = dx > 0 ? 'prev' : 'next';
         const href = dx > 0 ? prevHref : nextHref;
         if (href) {
+          saveScrollRatio();
           sessionStorage.setItem('pendingNavDir', dir);
           navigate(href);
         }
