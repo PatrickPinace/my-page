@@ -400,8 +400,14 @@ const shots = shotDefs.map((s) => {
     };
 
     closeBtn?.addEventListener('click', closeLightbox);
+    // Zamyka też klik w samo zdjęcie, nie tylko w tło dookoła. e.target to
+    // element, w który realnie kliknięto (nie ten, na który bąbelkuje
+    // zdarzenie) - klik w X/strzałki nie trafia w żaden z dwóch warunków
+    // niżej, więc nie zamyka przypadkiem przy okazji przełączania zdjęcia.
     lightbox?.addEventListener('click', (e) => {
-      if (e.target === lightbox) closeLightbox();
+      if (e.target === lightbox || (e.target as HTMLElement)?.classList.contains('lightbox-img')) {
+        closeLightbox();
+      }
     });
     lbPrevBtn?.addEventListener('click', () => {
       goTo(index - 1);
