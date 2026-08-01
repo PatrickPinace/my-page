@@ -302,7 +302,12 @@ const shots = shotDefs.map((s) => {
 
     const schedule = () => {
       stop();
-      if (!motionOK || userPaused || !inView || shots.length < 2) return;
+      // Lightbox żyje poza .shot-gallery, więc mouseenter/mouseleave i
+      // IntersectionObserver na galerii nie wiedzą, że jest otwarty - kursor
+      // jadący do strzałki lightboxa mija się z galerią i wywołuje
+      // mouseleave, co bez tego warunku wznawiało autoplay w tle, mimo że
+      // user wciąż patrzy na powiększone zdjęcie.
+      if (!motionOK || userPaused || !inView || shots.length < 2 || lightbox?.classList.contains('is-open')) return;
       timer = window.setTimeout(() => {
         show(index + 1);
         schedule();
@@ -368,10 +373,19 @@ const shots = shotDefs.map((s) => {
     const lbPrevBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-prev');
     const lbNextBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-next');
 
+    // .shot bywa samo <img> (klatka 'dark') albo <span> opakowujący dwa <img>
+    // (klatka 'light', .shot-theme-pair) - querySelectorAll('img') szuka
+    // tylko wśród POTOMKÓW, więc dla 'dark' zwracała pustą listę. Który z
+    // dwóch <img> w parze jest widoczny, ustala display:none/block (patrz
+    // applyGalleryTheme + CSS .shot-theme-pair), nie atrybut hidden -
+    // offsetParent sprawdza rzeczywisty layout: null, gdy element (albo
+    // przodek) ma display:none.
     const currentVisibleImg = (): HTMLImageElement | null => {
       const active = shots[index];
       if (!active) return null;
-      return active.querySelector<HTMLImageElement>('img:not([hidden])') ?? active.querySelector('img');
+      if (active instanceof HTMLImageElement) return active;
+      const imgs = Array.from(active.querySelectorAll<HTMLImageElement>('img'));
+      return imgs.find((img) => img.offsetParent !== null) ?? imgs[0] ?? null;
     };
 
     const syncLightboxImg = () => {
@@ -380,6 +394,18 @@ const shots = shotDefs.map((s) => {
         lightboxImg.src = img.src;
         lightboxImg.alt = img.alt;
       }
+    };
+
+    // Nawigacja WEWNĄTRZ lightboxa musi zostawić autoplay wyłączony, dopóki
+    // okno jest otwarte - goTo() (używane przez strzałki/kropki pod zdjęciem)
+    // za każdym razem wznawia schedule(), więc klik w strzałkę lightboxa
+    // odpalał w tle autoplay karuzeli. Ten drugi timer po kilku sekundach
+    // sam podmieniał index, rozjeżdżając to, co pokazuje lightbox, z tym,
+    // co naprawdę jest aktywne w karuzeli pod spodem - stąd wrażenie, że
+    // "nie da się wrócić w lewo" (index już uciekł do przodu).
+    const showInLightbox = (i: number) => {
+      show(i);
+      syncLightboxImg();
     };
 
     const openLightbox = () => {
@@ -409,19 +435,13 @@ const shots = shotDefs.map((s) => {
         closeLightbox();
       }
     });
-    lbPrevBtn?.addEventListener('click', () => {
-      goTo(index - 1);
-      syncLightboxImg();
-    });
-    lbNextBtn?.addEventListener('click', () => {
-      goTo(index + 1);
-      syncLightboxImg();
-    });
+    lbPrevBtn?.addEventListener('click', () => showInLightbox(index - 1));
+    lbNextBtn?.addEventListener('click', () => showInLightbox(index + 1));
     document.addEventListener('keydown', (e) => {
       if (!lightbox?.classList.contains('is-open')) return;
       if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') { goTo(index - 1); syncLightboxImg(); }
-      if (e.key === 'ArrowRight') { goTo(index + 1); syncLightboxImg(); }
+      if (e.key === 'ArrowLeft') showInLightbox(index - 1);
+      if (e.key === 'ArrowRight') showInLightbox(index + 1);
     });
 
     show(0);
