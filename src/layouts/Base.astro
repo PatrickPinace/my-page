@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { url } from '../lib/paths';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -33,18 +34,67 @@ const ogImage = new URL('/photo/michal-minor.webp', Astro.site);
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
+    <ClientRouter />
     <script is:inline>
       // Musi wykonać się przed pierwszym malowaniem, inaczej strona mignie
       // domyślnym motywem, zanim wczyta się zapisany wybór.
-      try {
-        var t = localStorage.getItem('theme');
-        if (t === 'ruda') {
-          document.documentElement.dataset.theme = 'ruda';
-          document
-            .querySelector('meta[name="theme-color"]')
-            .setAttribute('content', '#14120f');
+      //
+      // Nawigacja SPA (ClientRouter): zweryfikowane empirycznie (Playwright +
+      // czytając node_modules/astro/dist/transitions/swap-functions.js), że
+      // swapRootAttributes() PODMIENIA WSZYSTKIE atrybuty <html> na te z nowo
+      // pobranego dokumentu (poza własnymi data-astro-transition* Astro) -
+      // a świeżo wyrenderowany <html> z serwera nie ma jeszcze data-theme
+      // (ten atrybut dopisuje dopiero inline-skrypt w <head>, który przy
+      // SPA-swapie się NIE wykonuje ponownie). Efekt zaobserwowany bez tej
+      // poprawki: tuż po nawigacji dataset.theme było `undefined`, mimo że
+      // localStorage cały czas miał zapisane 'ruda' - throwaway FOUC domyślnym
+      // motywem na każdej nawigacji.
+      //
+      // Naprawa: astro:before-swap niesie w evencie własny `event.swap` -
+      // funkcję, która w środku wywołuje swapRootAttributes(). Owijamy ją:
+      // najpierw oryginalny swap, zaraz potem doklejamy z powrotem data-theme
+      // na nowe <html>, W TEJ SAMEJ (synchronicznej) funkcji, więc przeglądarka
+      // nie ma szansy namalować klatki pomiędzy usunięciem atrybutu a jego
+      // przywróceniem.
+      //
+      // Przy okazji: ten sam wrapper doszczepia data-nav-dir (kierunek
+      // animacji slide, patrz global.css sekcja 10 i [slug].astro) - z tego
+      // samego powodu (swapRootAttributes kasuje WSZYSTKIE atrybuty <html>,
+      // więc atrybut ustawiony na kliknięciu/swipe'ie tuż przed navigate()
+      // i tak zostałby starty przez ten sam swap zanim ::view-transition-*
+      // zdąży go odczytać). Kierunek podróżuje przez sessionStorage (nie
+      // przez zmienną modułową) - navigate() w [slug].astro jest async i
+      // moduł strony ŹRÓDŁOWEJ bywa odłączony od DOM zanim ten handler tu
+      // się wykona, sessionStorage przeżywa to bez informacji ubocznych.
+      (function () {
+        var NAV_DIR_KEY = 'pendingNavDir';
+        function applyTheme() {
+          try {
+            var t = localStorage.getItem('theme');
+            var isRuda = t === 'ruda';
+            document.documentElement.dataset.theme = isRuda ? 'ruda' : 'nocturne';
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', isRuda ? '#14120f' : '#0e0f17');
+          } catch (e) {}
         }
-      } catch (e) {}
+        function applyNavDir() {
+          try {
+            var dir = sessionStorage.getItem(NAV_DIR_KEY);
+            sessionStorage.removeItem(NAV_DIR_KEY);
+            if (dir) document.documentElement.dataset.navDir = dir;
+            else delete document.documentElement.dataset.navDir;
+          } catch (e) {}
+        }
+        applyTheme();
+        document.addEventListener('astro:before-swap', function (e) {
+          var originalSwap = e.swap;
+          e.swap = function () {
+            originalSwap();
+            applyTheme();
+            applyNavDir();
+          };
+        });
+      })();
     </script>
     <script is:inline>
       // Przywrócenie zapamiętanej pozycji scrolla (nawigacja prev/next między
@@ -71,44 +121,116 @@ const ogImage = new URL('/photo/michal-minor.webp', Astro.site);
       // miejscu <body> już istnieje, ale obrazy (zdjęcia w karuzeli) mogą
       // wciąż się ładować, więc dokument nie ma jeszcze docelowej wysokości -
       // scrollTo() przed pełnym załadowaniem trafiał w za krótką stronę i
-      // później zjeżdżał, gdy obraz doładował layout. Stąd restore czeka na
-      // window.load (albo, gdy strona jest już complete, wykonuje się od
-      // razu) - dopiero wtedy odsłaniamy stronę.
+      // później zjeżdżał, gdy obraz doładował layout. Stąd restore czeka, aż
+      // WSZYSTKIE <img> na stronie zgłoszą się jako gotowe (complete) -
+      // dopiero wtedy odsłaniamy stronę.
+      //
+      // Kryterium zmienione z document.readyState/window.load na img.complete
+      // po tym, jak testy (Playwright) ujawniły realną regresję pod
+      // ClientRouter (SPA-nawigacja): window.load odpala się tylko raz, na
+      // pierwsze wejście na stronę - a nawet gdyby odpalał się przy każdej
+      // nawigacji, document.readyState jest zawsze 'complete' od razu po
+      // SPA-swapie (sam dokument HTML się nie przeładowuje), NIEZALEŻNIE od
+      // tego, czy nowo wstawione <img> (zdjęcia karuzeli) już się załadowały.
+      // Efekt zaobserwowany bez tej poprawki: scrollTo(savedY) trafiał w
+      // stronę, która jeszcze nie urosła do docelowej wysokości (scrollHeight
+      // dochodził do pełnej wartości do ~200ms po page-load, gdy dociągały
+      // się zdjęcia), więc przeglądarka po cichu przycinała scroll do
+      // ówczesnego (mniejszego) maksimum, i to obcięte 253 zostawało - żadna
+      // późniejsza zmiana layoutu tego nie koryguje automatycznie.
+      //
+      // astro:page-load odpala się po KAŻDEJ nawigacji ClientRouter (w tym po
+      // pierwszym wejściu), więc to na nim wisi nasłuch - restore() sam się
+      // chroni przez sessionStorage.removeItem, więc podwójne wywołanie przy
+      // starcie jest nieszkodliwe.
       (function () {
-        var key = 'scrollTo:' + location.href;
-        var savedY = null;
-        try {
-          savedY = sessionStorage.getItem(key);
-        } catch (e) {}
-
-        var restore = function () {
+        function run() {
+          var key = 'scrollTo:' + location.href;
+          var savedY = null;
           try {
-            if (savedY !== null) {
-              sessionStorage.removeItem(key);
-              window.scrollTo(0, Number(savedY));
-            }
+            savedY = sessionStorage.getItem(key);
           } catch (e) {}
-          document.documentElement.style.visibility = '';
-        };
 
-        if (savedY !== null && document.readyState !== 'complete') {
-          window.addEventListener('load', restore, { once: true });
-        } else {
-          restore();
+          var done = false;
+          var restore = function () {
+            if (done) return;
+            done = true;
+            try {
+              if (savedY !== null) {
+                sessionStorage.removeItem(key);
+                window.scrollTo(0, Number(savedY));
+              }
+            } catch (e) {}
+            document.documentElement.style.visibility = '';
+          };
+
+          if (savedY === null) {
+            restore();
+            return;
+          }
+
+          var imgs = Array.prototype.slice.call(document.images);
+          var pending = imgs.filter(function (img) {
+            return !img.complete;
+          });
+          if (pending.length === 0) {
+            restore();
+            return;
+          }
+          var remaining = pending.length;
+          var onOneDone = function () {
+            remaining -= 1;
+            if (remaining <= 0) restore();
+          };
+          pending.forEach(function (img) {
+            img.addEventListener('load', onOneDone, { once: true });
+            img.addEventListener('error', onOneDone, { once: true });
+          });
+          // Filet bezpieczeństwa: gdyby jakiś obraz nigdy nie odpalił load/error
+          // (nie powinno się zdarzyć, ale scroll-restore nie może wisieć
+          // wiecznie i trzymać strony schowanej), odsłoń stronę mimo wszystko.
+          window.setTimeout(restore, 2000);
         }
+        run();
+        document.addEventListener('astro:page-load', run);
       })();
     </script>
     <script>
-      const els = document.querySelectorAll<HTMLElement>('.reveal');
-      const io = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            entry.target.classList.toggle('is-visible', entry.isIntersecting);
-          }
-        },
-        { threshold: 0.15 }
-      );
-      els.forEach((el) => io.observe(el));
+      function initReveal() {
+        const els = document.querySelectorAll<HTMLElement>('.reveal');
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              entry.target.classList.toggle('is-visible', entry.isIntersecting);
+            }
+          },
+          { threshold: 0.15 }
+        );
+        els.forEach((el) => io.observe(el));
+      }
+      initReveal();
+      document.addEventListener('astro:page-load', initReveal);
+    </script>
+    <script>
+      // data-nav-dir (kierunek animacji slide prev/next, patrz global.css
+      // sekcja 10) trwa na <html> od before-swap aż tu - trzeba je posprzątać,
+      // inaczej zostaje "zamrożone" na ostatnim kierunku i fałszywie animuje
+      // kierunkowo KOLEJNĄ nawigację, nawet gdy ta wcale nie przeszła przez
+      // case-nav-link ani swipe (np. link "Projekty" w topbarze, wpisany URL,
+      // wstecz przeglądarki).
+      //
+      // Celowo NIE na astro:page-load - to odpala się w momencie, gdy DOM już
+      // jest podmieniony (updateCallbackDone), ale animacja CSS wjazdu nowej
+      // treści (::view-transition-new(root), 360ms) może wtedy JESZCZE trwać;
+      // usunięcie atrybutu w trakcie ucinałoby ją w pół drogi (selektor w CSS
+      // jest :root[data-nav-dir="..."]::view-transition-new(root)). Stąd
+      // opóźnienie pokrywające czas animacji zdefiniowany w global.css - jeśli
+      // kiedyś zmieni się tam 360ms, trzeba zmienić i tutaj.
+      document.addEventListener('astro:page-load', () => {
+        window.setTimeout(() => {
+          delete document.documentElement.dataset.navDir;
+        }, 420);
+      });
     </script>
   </body>
 </html>
