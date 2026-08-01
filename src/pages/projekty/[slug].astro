@@ -57,7 +57,12 @@ const shots = shotDefs.map((s) => {
 <Base title={`${title} - Michał Minor`} description={summary}>
   <Header />
   <div class="mx-auto max-w-[1120px]">
-    <div class="px-6 pb-16 md:px-14">
+    <div
+      class="px-6 pb-16 md:px-14"
+      id="case-page"
+      data-swipe-prev={path(`/projekty/${prev.id}`)}
+      data-swipe-next={path(`/projekty/${next.id}`)}
+    >
       <div class="mb-3 font-mono text-xs text-ink-600">
         <a href={path("/#projekty")} class="text-ink-600 no-underline transition-colors hover:text-accent-200">← projekty</a>
         · {num} / {String(total).padStart(2, '0')}
@@ -157,6 +162,18 @@ const shots = shotDefs.map((s) => {
         </div>
       </div>
 
+      <!-- Lightbox: pełnoekranowy podgląd aktywnego zdjęcia galerii. Żyje poza
+           .shot-gallery (nie zagnieżdżony), żeby position:fixed nie musiało
+           się przebijać przez overflow:hidden kontenera karuzeli. Zawsze
+           jeden <img>, którego src podmienia skrypt przy otwarciu/przełączeniu -
+           prościej niż duplikować całą strukturę shot/shot-theme-pair. -->
+      <div class="lightbox" id="lightbox" aria-hidden="true">
+        <button type="button" class="lightbox-close" aria-label="Zamknij podgląd">✕</button>
+        <button type="button" class="lightbox-arrow lightbox-arrow-prev" aria-label="Poprzednie zdjęcie">‹</button>
+        <img class="lightbox-img" alt="" />
+        <button type="button" class="lightbox-arrow lightbox-arrow-next" aria-label="Następne zdjęcie">›</button>
+      </div>
+
       {/* Nawigacja między projektami zaraz pod zdjęciem/kontrolkami galerii -
           wcześniej siedziała na samym dole strony, oderwana od kontekstu,
           do którego się odnosi. */}
@@ -193,6 +210,44 @@ const shots = shotDefs.map((s) => {
       sessionStorage.setItem('scrollTo:' + link.href, String(window.scrollY));
     });
   });
+</script>
+
+<script>
+  // Swipe w lewo/prawo przechodzi do sąsiedniego projektu - ale tylko gdy
+  // gest zaczyna się POZA galerią zdjęć, żeby nie kolidować z przewijaniem
+  // zdjęć w karuzeli (tam dotyk jest już zajęty przez klik lewo/prawo).
+  // Celowo zwykłe przejście na nowy URL, bez zapamiętywania scrolla -
+  // przy zmianie projektu ma się zaczynać od góry, tak jak strzałki tekstowe.
+  const page = document.getElementById('case-page');
+  const gallery = document.querySelector('.shot-gallery');
+
+  if (page) {
+    const prevHref = page.dataset.swipePrev;
+    const nextHref = page.dataset.swipeNext;
+    const THRESHOLD = 60;
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    page.addEventListener('touchstart', (e) => {
+      const target = e.target as HTMLElement;
+      tracking = !gallery?.contains(target);
+      if (!tracking) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+
+    page.addEventListener('touchend', (e) => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      // Ignoruj przewijanie pionowe błędnie odczytane jako poziomy gest.
+      if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+      const href = dx > 0 ? prevHref : nextHref;
+      if (href) window.location.href = href;
+    });
+  }
 </script>
 
 <script>
@@ -263,15 +318,19 @@ const shots = shotDefs.map((s) => {
     nextBtn?.addEventListener('click', () => goTo(index + 1));
     dots.forEach((dot, n) => dot.addEventListener('click', () => goTo(n)));
 
-    // Klik w lewą/prawą połowę zdjęcia, żeby nie trzeba było celować
-    // w wąską strzałkę. Nie łapie kliknięć na samych strzałkach/kropkach -
-    // te mają własne listenery i closest() je wyłapuje wcześniej.
+    // Klik w lewy/prawy skraj zdjęcia zmienia klatkę (jak dotąd); klik blisko
+    // środka (środkowe 50% szerokości) otwiera lightbox - strefy nie mogą się
+    // nakładać, więc próg musi być spójny z tym w handlerze lightboxa niżej.
     frame.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       if (target.closest('.shot-arrow') || shots.length < 2) return;
       const rect = frame.getBoundingClientRect();
-      const clickedLeft = (e as MouseEvent).clientX - rect.left < rect.width / 2;
-      goTo(index + (clickedLeft ? -1 : 1));
+      const ratioX = ((e as MouseEvent).clientX - rect.left) / rect.width;
+      if (ratioX >= 0.25 && ratioX <= 0.75) {
+        openLightbox();
+        return;
+      }
+      goTo(index + (ratioX < 0.25 ? -1 : 1));
     });
 
     // Strzałki klawiatury, gdy galeria (lub coś w niej) ma fokus.
@@ -298,6 +357,66 @@ const shots = shotDefs.map((s) => {
       },
       { threshold: 0.2 }
     ).observe(gallery);
+
+    // Lightbox: pełnoekranowy podgląd. Źródło obrazka bierze się z tego, co
+    // już wyrenderowane w klatce - dla pary jasny/ciemny motyw to ten sam
+    // obrazek, który akurat pokazuje karuzela (patrz applyGalleryTheme wyżej),
+    // więc lightbox nie musi sam wiedzieć nic o motywach.
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox?.querySelector<HTMLImageElement>('.lightbox-img');
+    const closeBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-close');
+    const lbPrevBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-prev');
+    const lbNextBtn = lightbox?.querySelector<HTMLButtonElement>('.lightbox-arrow-next');
+
+    const currentVisibleImg = (): HTMLImageElement | null => {
+      const active = shots[index];
+      if (!active) return null;
+      return active.querySelector<HTMLImageElement>('img:not([hidden])') ?? active.querySelector('img');
+    };
+
+    const syncLightboxImg = () => {
+      const img = currentVisibleImg();
+      if (lightboxImg && img) {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+      }
+    };
+
+    const openLightbox = () => {
+      if (!lightbox) return;
+      syncLightboxImg();
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('lightbox-locked');
+      stop();
+    };
+
+    const closeLightbox = () => {
+      if (!lightbox) return;
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('lightbox-locked');
+      schedule();
+    };
+
+    closeBtn?.addEventListener('click', closeLightbox);
+    lightbox?.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    lbPrevBtn?.addEventListener('click', () => {
+      goTo(index - 1);
+      syncLightboxImg();
+    });
+    lbNextBtn?.addEventListener('click', () => {
+      goTo(index + 1);
+      syncLightboxImg();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox?.classList.contains('is-open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') { goTo(index - 1); syncLightboxImg(); }
+      if (e.key === 'ArrowRight') { goTo(index + 1); syncLightboxImg(); }
+    });
 
     show(0);
   }
