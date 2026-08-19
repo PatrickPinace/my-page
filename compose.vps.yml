@@ -1,0 +1,26 @@
+# Wdrożenie na współdzielonym VPS (ronim.com.pl), wzorem
+# bdo-filler-demo/compose.demo.vps.yml: podłączenie do istniejącej
+# zewnętrznej sieci core-network zamiast publikowania portów na hosta
+# (Caddy jest jedynym reverse proxy, patrz /opt/core/caddy/Caddyfile),
+# jawny container_name (core-network jest współdzielona między wieloma
+# projektami Compose, same nazwy serwisów nie wystarczają do DNS bez
+# kolizji).
+#
+# Uruchom (na VPS, w /opt/apps/my-page/app/):
+#   docker compose -f compose.vps.yml up -d --build
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my-page-frontend
+    restart: unless-stopped
+    mem_limit: 64m
+    networks:
+      - core-network
+    expose:
+      - "80"
+
+networks:
+  core-network:
+    external: true
