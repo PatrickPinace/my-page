@@ -8,6 +8,16 @@
 #
 # Uruchom (na VPS, w /opt/apps/my-page/app/):
 #   docker compose -f compose.vps.yml up -d --build
+#
+# `name:` jawnie ustawiony -- inaczej Compose nazywa projekt po nazwie
+# katalogu roboczego, a ten katalog (jak w innych projektach na tym
+# hoście, np. bdo-filler-demo/app) nazywa się "app". Bez jawnej nazwy
+# dwa niezwiązane projekty Compose na tym samym VPS-ie dzielą jedną
+# nazwę projektu "app" i każdy kolejny `up` jednego z nich usuwa
+# (Recreate) kontenery tego drugiego, którego serwisy nie są w bieżącym
+# pliku compose -- to realnie się wydarzyło przy pierwszym deployu tego
+# projektu i skasowało kontener bdo-filler-demo-frontend.
+name: my-page
 services:
   frontend:
     build:
