@@ -13,6 +13,16 @@ import Footer from '../components/Footer.astro';
   title="Michał Minor - full-stack developer"
   description="Tworzę rzeczy, które działają - od backendu po deploy. Django, Astro, React, Linux."
 >
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Michał Minor',
+    url: Astro.site?.toString(),
+    email: 'mailto:minor.michal1@gmail.com',
+    sameAs: ['https://github.com/PatrickPinace'],
+    jobTitle: 'Full-stack developer',
+    knowsAbout: ['Django', 'Python', 'Astro', 'React', 'PostgreSQL', 'Docker', 'Linux'],
+  })} />
   <Header />
   <div class="mx-auto max-w-[1120px]">
     <Hero />

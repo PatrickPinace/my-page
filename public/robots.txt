@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://michal.ronim.com.pl/sitemap-index.xml
