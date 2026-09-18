@@ -61,14 +61,14 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
 <Base title={`${title} - Michał Minor`} description={summary} image={ogImage}>
   <Header />
   <div class="mx-auto max-w-[1120px]">
-    <div
+    <main
       class="px-6 pb-16 md:px-14"
       id="case-page"
       data-swipe-prev={path(`/projekty/${prev.id}`)}
       data-swipe-next={path(`/projekty/${next.id}`)}
     >
-      <div class="mb-3 font-mono text-xs text-ink-600">
-        <a href={path("/#projekty")} class="text-ink-600 no-underline transition-colors hover:text-accent-200">← projekty</a>
+      <div class="mb-3 font-mono text-xs text-ink-500">
+        <a href={path("/#projekty")} class="text-ink-500 underline transition-colors hover:text-accent-200">← projekty</a>
         · {num} / {String(total).padStart(2, '0')}
       </div>
 
@@ -206,7 +206,7 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
       <div class="prose-case max-w-[58ch] text-[16px] leading-relaxed">
         <Content />
       </div>
-    </div>
+    </main>
 
     <Footer />
   </div>
