@@ -52,9 +52,13 @@ const shots = shotDefs.map((s) => {
     height,
   };
 });
+
+// og:image per-projekt - pierwszy zrzut galerii (wariant nocturne dla
+// kind: 'light', bo to domyślny motyw strony), zamiast globalnego portretu.
+const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
 ---
 
-<Base title={`${title} - Michał Minor`} description={summary}>
+<Base title={`${title} - Michał Minor`} description={summary} image={ogImage}>
   <Header />
   <div class="mx-auto max-w-[1120px]">
     <div
