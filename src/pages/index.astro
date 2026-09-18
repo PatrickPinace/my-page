@@ -11,7 +11,7 @@ import Footer from '../components/Footer.astro';
 
 <Base
   title="Michał Minor - full-stack developer"
-  description="Tworzę rzeczy, które działają - od backendu po deploy. Django, Astro, React, Linux."
+  description="Michał Minor - tworzę rzeczy, które działają: od backendu po deploy. Django, Astro, React, Linux."
 >
   <script type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org',
@@ -19,7 +19,12 @@ import Footer from '../components/Footer.astro';
     name: 'Michał Minor',
     url: Astro.site?.toString(),
     email: 'mailto:minor.michal1@gmail.com',
-    sameAs: ['https://github.com/PatrickPinace'],
+    sameAs: [
+      'https://github.com/PatrickPinace',
+      'https://www.linkedin.com/in/michał-minor-593a99192/',
+      'https://www.facebook.com/JohnnyMnemonic123/',
+      'https://www.instagram.com/1fenylo2aminopropan/',
+    ],
     jobTitle: 'Full-stack developer',
     knowsAbout: ['Django', 'Python', 'Astro', 'React', 'PostgreSQL', 'Docker', 'Linux'],
   })} />
