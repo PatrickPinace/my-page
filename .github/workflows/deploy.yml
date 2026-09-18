@@ -1,11 +1,8 @@
 name: Deploy na VPS
 
-# Uruchamiany wyłącznie ręcznie (Actions → Deploy na VPS → Run workflow),
-# dopóki VPS nie jest gotowy i sekrety nie są ustawione. Żeby wrócić do
-# automatu przy każdym pushu, odkomentuj poniższe `push:`.
 on:
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -23,8 +20,6 @@ jobs:
       - name: Zainstaluj pnpm
         uses: pnpm/action-setup@v4
         with:
-          # ta sama wersja co lokalnie - lockfile jest nią wygenerowany,
-          # a --frozen-lockfile potrafi się wywrócić przy innej
           version: 11.5.1
           run_install: false
 
@@ -40,10 +35,7 @@ jobs:
       - name: Zbuduj stronę
         run: pnpm build
         env:
-          # Pełny adres strony - trafia do sitemap i tagów kanonicznych.
-          # Ustaw w ustawieniach repo: Settings → Secrets and variables →
-          # Actions → Variables, np. https://minor.pl
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: https://michal.ronim.com.pl
 
       - name: Zweryfikuj build
         run: |
@@ -63,16 +55,11 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
 
-      - name: Wyślij dist/ na serwer
+      - name: Uruchom deploy na serwerze
         run: |
-          # --delete usuwa ze zdalnego katalogu pliki, których już nie ma
-          # w buildzie. Ścieżka docelowa MUSI wskazywać wyłącznie na katalog
-          # tej strony - rsync wyczyści wszystko, co jest w środku.
-          rsync -avz --delete \
-            -e "ssh -p ${VPS_PORT:-22}" \
-            dist/ "$VPS_USER@$VPS_HOST:$VPS_PATH/"
+          ssh -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" "$VPS_DEPLOY_PATH/deploy.sh"
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_PATH: ${{ secrets.VPS_PATH }}
+          VPS_DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
