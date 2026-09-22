@@ -3,7 +3,6 @@ title: IKUME
 summary: Strona artysty muzycznego - występy na żywo, wizualizacje audio-reaktywne generowane w czasie rzeczywistym.
 stack: [Astro, Three.js, TypeScript]
 role: [full-stack, wizualizacje]
-repo: https://github.com/PatrickPinace/ikume-page
 hosting: brak (projekt w budowie)
 screenshotAlt: IKUME - strona główna z animowanym hero
 shots:
@@ -19,7 +18,7 @@ tile: wide
 featured: true
 inProgress: true
 inProgressLabel: system w budowie
-order: 9
+order: 5
 ---
 
 ## Problem

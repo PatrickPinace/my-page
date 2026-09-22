@@ -12,7 +12,7 @@ shots:
   - base: ortomielec-light-2
     kind: light
 tile: tall
-order: 3
+order: 4
 ---
 
 Strona gabinetu ortodontycznego w&nbsp;Mielcu - leczenie aparatami stałymi,

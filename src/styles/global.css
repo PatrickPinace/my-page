@@ -349,11 +349,11 @@ hr.hr {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
-/* Kreska pionowa = ciemny motyw (Nocturne), okrągła kropka = jasny -
-   sam kształt niesie informację, który motyw jest aktywny, bez etykiety.
-   Ruda też renderuje kreskę pionową (nieodróżnialna od Nocturne na tym
-   przycisku) - schowana z UI, ale token wciąż żyje w CSS, patrz komentarz
-   przy [data-theme="ruda"] wyżej. */
+/* Kreska obraca się razem z motywem: pionowa w Nocturne/Jasnym, pozioma
+   w Rudej - sam kształt niesie informację, który motyw jest aktywny, bez
+   etykiety. Ruda schowana z UI (patrz ThemeToggle.astro), ale token wciąż
+   żyje w CSS, patrz komentarz przy [data-theme="ruda"] wyżej - stąd reguła
+   dla niej zostaje, mimo że przycisk już do tego stanu nie prowadzi. */
 .theme-toggle .swatch {
   width: 3px;
   height: 14px;
@@ -361,9 +361,9 @@ hr.hr {
   background: var(--color-accent);
   transition: width 0.2s ease, height 0.2s ease;
 }
-[data-theme="light"] .theme-toggle .swatch {
-  width: 10px;
-  height: 10px;
+[data-theme="ruda"] .theme-toggle .swatch {
+  width: 14px;
+  height: 3px;
 }
 
 /* --- 6. Kafle projektów ------------------------------------------------- */

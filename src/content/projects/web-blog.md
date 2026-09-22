@@ -19,11 +19,10 @@ shots:
     kind: dark
   - base: web-blog-light
     kind: light
-tile: wide
-featured: true
+tile: normal
 inProgress: true
 inProgressLabel: rozwijany na bieżąco
-order: 8
+order: 7
 ---
 
 ## Problem

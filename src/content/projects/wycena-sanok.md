@@ -13,7 +13,7 @@ shots:
   - base: wycena-sanok-light-2
     kind: light
 tile: normal
-order: 7
+order: 8
 ---
 
 ## Problem

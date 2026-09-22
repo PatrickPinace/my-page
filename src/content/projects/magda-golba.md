@@ -12,7 +12,7 @@ shots:
   - base: magda-golba-light-2
     kind: light
 tile: normal
-order: 6
+order: 9
 ---
 
 ## Problem
