@@ -13,8 +13,8 @@ shots:
     kind: light
   - base: medykalni-light-3
     kind: light
-tile: tall
-order: 6
+tile: normal
+order: 7
 ---
 
 ## Problem

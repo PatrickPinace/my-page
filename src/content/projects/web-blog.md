@@ -22,7 +22,7 @@ shots:
 tile: normal
 inProgress: true
 inProgressLabel: rozwijany na bieżąco
-order: 7
+order: 5
 ---
 
 ## Problem
