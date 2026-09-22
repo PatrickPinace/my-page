@@ -22,14 +22,15 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   // 1. Klatki galerii projektu przewijają się w czasie (5–11 s), każdy kafel
   //    własnym rytmem, żeby siatka nie mrugała zbiorczo. Ruch pauzuje, gdy
   //    kafel jest poza ekranem albo pod kursorem - wtedy screen ma stać.
-  // 2. Klatki z jasnym zrzutem mają dwie warstwy (przyciemnione pod Nocturne
-  //    i pod Ruda) - która jest na wierzchu, decyduje aktywny motyw strony,
-  //    nie upływ czasu.
+  // 2. Klatki z jasnym zrzutem mają trzy warstwy (przyciemnione pod Nocturne
+  //    i pod Ruda, plus nieprzyciemniony pod Jasny) - która jest na wierzchu,
+  //    decyduje aktywny motyw strony, nie upływ czasu.
 
   const applyTheme = () => {
-    const isRuda = document.documentElement.dataset.theme === 'ruda';
+    const theme = document.documentElement.dataset.theme;
     document.querySelectorAll<HTMLElement>('.shot-pair').forEach((el) => {
-      el.classList.toggle('shot-swap', isRuda);
+      el.classList.toggle('shot-theme-ruda', theme === 'ruda');
+      el.classList.toggle('shot-theme-light', theme === 'light');
     });
   };
 

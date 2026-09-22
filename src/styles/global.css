@@ -1,7 +1,7 @@
 /* ===========================================================================
    Spis sekcji:
      1. Importy
-     2. Tokeny motywów (Nocturne / Ruda) + re-eksport do Tailwinda
+     2. Tokeny motywów (Nocturne / Ruda / Jasny) + re-eksport do Tailwinda
      3. Reset (@layer base)
      4. Komponenty współdzielone (.btn, .tag, hr)
      5. Topbar (.site-header, .theme-toggle)
@@ -106,6 +106,41 @@
   --on-accent: #17120d;
 
   color-scheme: dark;
+}
+
+/* Jasny motyw - ta sama rodzina fioletu co Nocturne, tło wyraźnie stonowane
+   (szaro-fioletowy, nie czysta/kremowa biel) zamiast ciemnego grafitu.
+   Akcent przyciemniony względem Nocturne (#9184d9 -> #6b5bc0), bo oryginalny
+   fiolet na jasnym tle nie dawał wystarczającego kontrastu tekstu
+   (WCAG AA, 4.5:1) - ta sama logika co jasny motyw w ronim-page, patrz
+   komentarz tam przy ink-600 (jaśniejszy niż ink-500, bo nigdzie nie jest
+   używany na tekście, tylko jako subtelne tło/obramowanie). */
+[data-theme="light"] {
+  --color-bg: #eeecf2;
+  --color-surface: #e4e1eb;
+
+  --color-text: #201e29;
+  --color-ink-300: #423d52;
+  --color-ink-400: #5b5468;
+  --color-ink-500: #726b80;
+  --color-ink-600: #9a92a8;
+  --color-ink-800: #d3cfdd;
+  --color-ink-900: #dad6e4;
+
+  --color-accent: #6b5bc0;
+  /* Celowo CIEMNIEJSZY niż --color-accent, nie jaśniejszy jak w Nocturne -
+     patrz komentarz w ronim-page przy tym samym tokenie: na jasnym tle
+     wyróżnienie/hover idzie w stronę przyciemnienia, nie rozjaśnienia. */
+  --color-accent-200: #4c3ea3;
+  --color-accent-300: #5a4bb0;
+  --color-accent-400: #5c4cae;
+  --color-accent-700: #c7bfe6;
+
+  --accent-rgb: 107 91 192;
+  --bg-rgb: 238 236 242;
+  --on-accent: #f7f6fb;
+
+  color-scheme: light;
 }
 
 /* Re-eksport tokenów do Tailwinda, żeby dało się pisać krótkie klasy
@@ -314,8 +349,11 @@ hr.hr {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
-/* Kreska obraca się razem z motywem: pionowa w Nocturne, pozioma w Rudej -
-   sam kształt niesie informację, który motyw jest aktywny, bez etykiety. */
+/* Kreska pionowa = ciemny motyw (Nocturne), okrągła kropka = jasny -
+   sam kształt niesie informację, który motyw jest aktywny, bez etykiety.
+   Ruda też renderuje kreskę pionową (nieodróżnialna od Nocturne na tym
+   przycisku) - schowana z UI, ale token wciąż żyje w CSS, patrz komentarz
+   przy [data-theme="ruda"] wyżej. */
 .theme-toggle .swatch {
   width: 3px;
   height: 14px;
@@ -323,9 +361,9 @@ hr.hr {
   background: var(--color-accent);
   transition: width 0.2s ease, height 0.2s ease;
 }
-[data-theme="ruda"] .theme-toggle .swatch {
-  width: 14px;
-  height: 3px;
+[data-theme="light"] .theme-toggle .swatch {
+  width: 10px;
+  height: 10px;
 }
 
 /* --- 6. Kafle projektów ------------------------------------------------- */
@@ -342,11 +380,12 @@ hr.hr {
   opacity: 1;
 }
 
-/* Klatka z jasnym zrzutem: dwa warianty (przyciemnione pod Nocturne / pod
-   Ruda) tego samego zdjęcia leżą jeden na drugim - który jest na wierzchu,
-   decyduje aktywny motyw strony (klasa .shot-swap ustawiana w ProjectsGrid
-   przy starcie i przy zmianie motywu), nie upływ czasu. Bez JS-a widoczny
-   zostaje wariant pod Nocturne (domyślny motyw, pierwszy w DOM).
+/* Klatka z jasnym zrzutem: trzy warianty tego samego zdjęcia (przyciemnione
+   pod Nocturne, pod Ruda, plus nieprzyciemniony pod motyw Jasny) leżą jeden
+   na drugim - który jest na wierzchu, decyduje aktywny motyw strony (klasa
+   .shot-theme-{nocturne,ruda,light} ustawiana w ProjectsGrid przy starcie
+   i przy zmianie motywu), nie upływ czasu. Bez JS-a widoczny zostaje wariant
+   pod Nocturne (domyślny motyw, pierwszy w DOM).
 
    Uwaga: te reguły MUSZĄ być zawężone do .shot-pair (kontener kafla).
    Wcześniej celowały w samo .shot i wyciekały do karuzeli na podstronie
@@ -356,19 +395,21 @@ hr.hr {
 .shot-pair .shot {
   position: absolute;
   inset: 0;
-  transition: opacity 0.4s ease;
-}
-.shot-pair .shot-ruda {
   opacity: 0;
+  transition: opacity 0.4s ease;
 }
 .shot-pair .shot-nocturne {
   opacity: 1;
 }
-.shot-pair.shot-swap .shot-ruda {
+.shot-pair.shot-theme-ruda .shot-nocturne,
+.shot-pair.shot-theme-light .shot-nocturne {
+  opacity: 0;
+}
+.shot-pair.shot-theme-ruda .shot-ruda {
   opacity: 1;
 }
-.shot-pair.shot-swap .shot-nocturne {
-  opacity: 0;
+.shot-pair.shot-theme-light .shot-light {
+  opacity: 1;
 }
 
 /* Pastylki na wysuwanym pasku kafla ("rola" / "case study"). Tło musi tu
@@ -395,15 +436,17 @@ hr.hr {
   display: block;
 }
 
-/* Klatka karuzeli z jasnym zrzutem: dwa pliki (przyciemnione pod Nocturne /
-   pod Ruda) nałożone na siebie, tylko jeden wg aktywnego motywu ma display:
-   block - reszta pary (proporcje, is-active) działa tak samo jak zwykła
-   klatka, bo .shot-theme-pair sam też ma klasę .shot. */
+/* Klatka karuzeli z jasnym zrzutem: trzy pliki (przyciemnione pod Nocturne /
+   pod Ruda, plus nieprzyciemniony pod Jasny) nałożone na siebie, tylko jeden
+   wg aktywnego motywu ma display: block - reszta pary (proporcje, is-active)
+   działa tak samo jak zwykła klatka, bo .shot-theme-pair sam też ma klasę
+   .shot. */
 .shot-gallery .shot-theme-pair {
   position: relative;
 }
 .shot-theme-pair .shot-nocturne,
-.shot-theme-pair .shot-ruda {
+.shot-theme-pair .shot-ruda,
+.shot-theme-pair .shot-light {
   display: none;
 }
 .shot-theme-pair .shot-nocturne {
@@ -413,6 +456,12 @@ hr.hr {
   display: none;
 }
 .shot-gallery.theme-ruda .shot-theme-pair .shot-ruda {
+  display: block;
+}
+.shot-gallery.theme-light .shot-theme-pair .shot-nocturne {
+  display: none;
+}
+.shot-gallery.theme-light .shot-theme-pair .shot-light {
   display: block;
 }
 

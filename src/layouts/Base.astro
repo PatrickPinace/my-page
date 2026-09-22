@@ -74,10 +74,14 @@ const ogImage = new URL(image ?? '/photo/michal-minor.webp', Astro.site);
         function applyTheme() {
           try {
             var t = localStorage.getItem('theme');
-            var isRuda = t === 'ruda';
-            document.documentElement.dataset.theme = isRuda ? 'ruda' : 'nocturne';
+            // 'ruda' schowana z UI (patrz ThemeToggle.astro), ale zapisana
+            // wcześniej wartość musi dalej działać, gdyby ktoś ją jeszcze miał
+            // w localStorage z poprzedniej wersji strony.
+            var theme = t === 'light' || t === 'ruda' ? t : 'nocturne';
+            document.documentElement.dataset.theme = theme;
+            var COLORS = { light: '#eeecf2', ruda: '#14120f', nocturne: '#0e0f17' };
             var meta = document.querySelector('meta[name="theme-color"]');
-            if (meta) meta.setAttribute('content', isRuda ? '#14120f' : '#0e0f17');
+            if (meta) meta.setAttribute('content', COLORS[theme]);
           } catch (e) {}
         }
         function applyNavDir() {

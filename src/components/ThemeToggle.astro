@@ -1,7 +1,14 @@
 ---
-/** Przełącznik Nocturne ↔ Ruda. Stan trzymany na <html data-theme>,
- *  zapisywany w localStorage. Skrypt ustawiający motyw przed pierwszym
- *  malowaniem jest w Base.astro - tu tylko obsługa kliknięcia. */
+/** Przełącznik Nocturne (ciemny, domyślny) ↔ Jasny. Stan trzymany na
+ *  <html data-theme>, zapisywany w localStorage. Skrypt ustawiający motyw
+ *  przed pierwszym malowaniem jest w Base.astro - tu tylko obsługa
+ *  kliknięcia.
+ *
+ *  Trzeci motyw (Ruda, pomarańczowy) wciąż istnieje w CSS - patrz
+ *  global.css, [data-theme="ruda"] - ale świadomie schowany z tego
+ *  przycisku (decyzja: jeden prosty toggle ciemny/jasny, nie cykl trzech).
+ *  Gdyby ktoś chciał go przywrócić do UI, wystarczy zmienić `next` niżej
+ *  na cykl zamiast dwustanowego przełącznika. */
 ---
 
 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Zmień motyw kolorystyczny">
@@ -22,11 +29,11 @@
   document.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement)?.closest('#theme-toggle');
     if (!btn) return;
-    const next = document.documentElement.dataset.theme === 'ruda' ? 'nocturne' : 'ruda';
+    const next = document.documentElement.dataset.theme === 'light' ? 'nocturne' : 'light';
     document.documentElement.dataset.theme = next;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', next === 'ruda' ? '#14120f' : '#0e0f17');
+      ?.setAttribute('content', next === 'light' ? '#eeecf2' : '#0e0f17');
     try {
       localStorage.setItem('theme', next);
     } catch {

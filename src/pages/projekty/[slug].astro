@@ -48,6 +48,7 @@ const shots = shotDefs.map((s) => {
     kind: 'light' as const,
     srcNocturne: path(`/screens/${fileNocturne}`),
     srcRuda: path(`/screens/${s.base}-ruda.webp`),
+    srcLight: path(`/screens/${s.base}-light.webp`),
     width,
     height,
   };
@@ -144,6 +145,14 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
                   width={s.width}
                   height={s.height}
                   class="shot-ruda block h-full w-full object-contain"
+                />
+                <img
+                  src={s.srcLight}
+                  alt=""
+                  aria-hidden="true"
+                  width={s.width}
+                  height={s.height}
+                  class="shot-light block h-full w-full object-contain"
                 />
               </span>
             )
@@ -329,11 +338,13 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
     const gallery = document.querySelector<HTMLElement>('.shot-gallery');
     const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Klatki z jasnym zrzutem niosą dwa pliki (przyciemnione pod każdy motyw) -
-    // która wersja jest widoczna, zależy wyłącznie od aktywnego data-theme, nie
-    // od autoplaya karuzeli.
+    // Klatki z jasnym zrzutem niosą trzy pliki (przyciemnione pod Nocturne/
+    // Ruda, plus nieprzyciemniony pod Jasny) - która wersja jest widoczna,
+    // zależy wyłącznie od aktywnego data-theme, nie od autoplaya karuzeli.
     const applyGalleryTheme = () => {
-      gallery?.classList.toggle('theme-ruda', document.documentElement.dataset.theme === 'ruda');
+      const theme = document.documentElement.dataset.theme;
+      gallery?.classList.toggle('theme-ruda', theme === 'ruda');
+      gallery?.classList.toggle('theme-light', theme === 'light');
     };
     applyGalleryTheme();
     on(document, 'theme-change', applyGalleryTheme);
