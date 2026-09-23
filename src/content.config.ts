@@ -25,7 +25,7 @@ const projects = defineCollection({
         kind: z.enum(['dark', 'light']),
       })
     ),
-    tile: z.enum(['wide', 'tall', 'normal']),
+    tile: z.enum(['full', 'wide', 'tall', 'normal']),
     featured: z.boolean().default(false),
     inProgress: z.boolean().default(false),
     /** Tekst pastylki "w budowie" na kaflu, gdy inProgress=true. Domyślnie

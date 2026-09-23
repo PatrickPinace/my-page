@@ -17,7 +17,7 @@ shots:
     kind: dark
   - base: portal-tenisowy-light
     kind: light
-tile: wide
+tile: full
 featured: true
 inProgress: true
 inProgressLabel: rozwijany na bieżąco

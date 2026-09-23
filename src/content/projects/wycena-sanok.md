@@ -12,7 +12,7 @@ shots:
     kind: light
   - base: wycena-sanok-light-2
     kind: light
-tile: normal
+tile: tall
 order: 6
 ---
 
