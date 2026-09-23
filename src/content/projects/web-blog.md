@@ -3,8 +3,9 @@ title: Blog autorski
 summary: Blog o projektowaniu i programowaniu z własnym panelem admina - CMS napisany od zera, nie WordPress.
 stack: [Flask, SQLAlchemy, PostgreSQL]
 role: [full-stack]
+url: https://blog-demo.ronim.com.pl
 repo: https://github.com/PatrickPinace/web-blog
-hosting: brak (projekt w budowie)
+hosting: własny VPS (demo, reset co godzinę)
 screenshotAlt: Blog autorski - widok wpisu z podświetlonymi pojęciami
 shots:
   - base: web-blog-dark
@@ -45,4 +46,5 @@ przed wysłaniem wpisu na&nbsp;żywo.
 
 Blog, na&nbsp;którym samo prowadzenie treści jest tak&nbsp;samo dopracowane
 jak&nbsp;to, co&nbsp;czyta odwiedzający. Rozwijany na&nbsp;bieżąco, pokryty ponad
-370&nbsp;testami.
+370&nbsp;testami. Demo na&nbsp;żywo z&nbsp;kontem do&nbsp;edycji - dane logowania
+widoczne na&nbsp;stronie, treść resetuje się co&nbsp;godzinę.
