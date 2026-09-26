@@ -20,7 +20,7 @@ shots:
 tile: wide
 featured: true
 inProgress: true
-order: 3
+order: 4
 ---
 
 ## Problem

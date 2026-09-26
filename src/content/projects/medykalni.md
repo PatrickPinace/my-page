@@ -14,7 +14,7 @@ shots:
   - base: medykalni-light-3
     kind: light
 tile: normal
-order: 7
+order: 8
 ---
 
 ## Problem
