@@ -163,6 +163,13 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
                Chowają się same, gdy klatka jest tylko jedna (.has-single). -->
           <button type="button" class="shot-arrow shot-arrow-prev" aria-label="Poprzednie zdjęcie">‹</button>
           <button type="button" class="shot-arrow shot-arrow-next" aria-label="Następne zdjęcie">›</button>
+          {shots.length > 1 && (
+            <div class="swipe-hint swipe-hint-gallery" data-hint="hintGallery" aria-hidden="true">
+              <span class="swipe-hint-arrow swipe-hint-arrow-l">‹</span>
+              przesuń, by zmienić zdjęcie
+              <span class="swipe-hint-arrow swipe-hint-arrow-r">›</span>
+            </div>
+          )}
         </div>
 
         <!-- Pasek pod zdjęciem, osobne miejsce na pauzę/kropki - nie nachodzi na kadr. -->
@@ -183,6 +190,14 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
             ))}
           </div>
         </div>
+      </div>
+
+      <!-- Podpowiedź gestu między projektami - tylko ekrany dotykowe, pokazuje
+           się od czasu do czasu, dopóki użytkownik sam nie przesunie strony. -->
+      <div class="swipe-hint swipe-hint-page" data-hint="hintPage" aria-hidden="true">
+        <span class="swipe-hint-arrow swipe-hint-arrow-l">‹</span>
+        przesuń, by zmienić projekt
+        <span class="swipe-hint-arrow swipe-hint-arrow-r">›</span>
       </div>
 
       <!-- Lightbox: pełnoekranowy podgląd aktywnego zdjęcia galerii. Żyje poza
@@ -298,6 +313,41 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
     const page = document.getElementById('case-page');
     const gallery0 = document.querySelector('.shot-gallery');
 
+    // Podpowiedzi gestów (tylko dotyk): pastylka pojawia się i zostaje, dopóki
+    // użytkownik nie wykona danego gestu - wtedy znika na dobre (zapis
+    // w localStorage, więc wracających nie nagabujemy). Podpowiedź zmiany
+    // projektu czeka, aż zniknie ta przy zdjęciach, żeby się nie nakładały.
+    // ?hint=1 w adresie wymusza pokazanie (podgląd na desktopie, ignoruje zapis).
+    const forceHint = new URLSearchParams(location.search).has('hint');
+    const touchOnly =
+      forceHint ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    const learned = (key: string) => {
+      if (forceHint) return false;
+      try { return localStorage.getItem(key) === '1'; } catch { return false; }
+    };
+    const hintEl = (key: string) => document.querySelector<HTMLElement>(`[data-hint="${key}"]`);
+    const showHint = (key: string, delay: number) => {
+      const el = hintEl(key);
+      if (!el || !touchOnly || learned(key)) return;
+      const timer = window.setTimeout(() => { if (!learned(key)) el.classList.add('is-on'); }, delay);
+      cleanupFns.push(() => window.clearTimeout(timer));
+    };
+    const markLearned = (key: string) => {
+      try { localStorage.setItem(key, '1'); } catch {}
+      const el = hintEl(key);
+      const wasOn = !!el?.classList.contains('is-on');
+      el?.classList.remove('is-on');
+      if (key === 'hintGallery' && (wasOn || !forceHint)) showHint('hintPage', wasOn ? 1500 : 2500);
+    };
+    if (hintEl('hintGallery')) {
+      showHint('hintGallery', 2500);
+      if (learned('hintGallery')) showHint('hintPage', 2500);
+    } else {
+      showHint('hintPage', 2500);
+    }
+
     if (page) {
       const prevHref = page.dataset.swipePrev;
       const nextHref = page.dataset.swipeNext;
@@ -324,6 +374,7 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
         const dir = dx > 0 ? 'prev' : 'next';
         const href = dx > 0 ? prevHref : nextHref;
         if (href) {
+          markLearned('hintPage');
           saveScrollRatio();
           sessionStorage.setItem('pendingNavDir', dir);
           navigate(href);
@@ -448,6 +499,7 @@ const ogImage = shots[0].kind === 'dark' ? shots[0].src : shots[0].srcNocturne;
         const dy = e.changedTouches[0].clientY - swipeStartY;
         if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
         swipeHandled = true;
+        markLearned('hintGallery');
         goTo(index + (dx > 0 ? -1 : 1));
       }) as EventListener);
 

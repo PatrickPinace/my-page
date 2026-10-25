@@ -20,7 +20,7 @@ shots:
     kind: dark
   - base: web-blog-light
     kind: light
-tile: tall
+tile: normal
 inProgress: true
 inProgressLabel: rozwijany na bieżąco
 order: 6

@@ -426,6 +426,45 @@ hr.hr {
   background: rgb(var(--bg-rgb) / 0.92);
 }
 
+/* --- Podpowiedzi gestów (podstrona projektu, tylko dotyk) ---------------- */
+
+.swipe-hint {
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  background: rgb(var(--bg-rgb) / 0.92);
+  color: var(--color-ink-300);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.swipe-hint.is-on { opacity: 1; }
+.swipe-hint-gallery {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  translate: -50% 0;
+  white-space: nowrap;
+}
+.swipe-hint-page {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  translate: -50% 0;
+  z-index: 30;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.3);
+}
+.swipe-hint-arrow { color: var(--color-accent-300); font-size: 16px; line-height: 1; }
+.swipe-hint.is-on .swipe-hint-arrow-l { animation: swipe-nudge-l 1s ease-in-out infinite; }
+.swipe-hint.is-on .swipe-hint-arrow-r { animation: swipe-nudge-r 1s ease-in-out infinite; }
+@keyframes swipe-nudge-l { 50% { transform: translateX(-5px); } }
+@keyframes swipe-nudge-r { 50% { transform: translateX(5px); } }
+
 /* --- 7. Karuzela na podstronie projektu --------------------------------- */
 
 /* Zdjęcia w pełni widoczne (object-contain), więc nie mogą się nakładać przez
@@ -663,7 +702,7 @@ body.lightbox-locked {
 }
 
 /* Wjazd sekcji przy scrollu. Klasę .is-visible przestawia IntersectionObserver
-   w Base.astro - w obie strony, więc efekt powtarza się przy każdym przejściu. */
+   w Base.astro - jednorazowo, przy pierwszym wjeździe. */
 .reveal {
   opacity: 0;
   transform: translateY(14px);
